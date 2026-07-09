@@ -1,0 +1,80 @@
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { authUtils } from "@/lib/api/auth/TokenManager";
+import { useAuth, getOnboardingRoute } from "@/lib/api/auth/authContext";
+import { Routes, FrontendRoutes } from "@/lib/api/FrontendRoutes";
+import { getSafeNextPath } from "@/lib/api/auth/redirect";
+import {
+  OAuthLoginResponse,
+  isAuthTokens,
+  isMFARequired,
+  isOnboardingRequired,
+} from "@/lib/api/types/auth";
+
+export function useLoginSuccess(response: OAuthLoginResponse | null) {
+  const router = useRouter();
+  const { fetchCurrentUser, setOnboardingToken, updatePartialUser } = useAuth();
+
+  useEffect(() => {
+    if (!response) return;
+
+    (async () => {
+      // Onboarding and MFA responses must win over any stale JWTs already in storage.
+      if (isOnboardingRequired(response)) {
+        authUtils.logout();
+        setOnboardingToken(response.onboarding_token);
+        updatePartialUser({
+          onboarding_status: response.onboarding_status,
+          onboarding_flow: response.onboarding_flow,
+          onboarding_token: response.onboarding_token,
+          email: response.user?.email,
+          first_name: response.user?.first_name,
+          last_name: response.user?.last_name,
+          username: response.user?.username,
+          profile_picture: response.user?.profile_picture,
+        });
+
+        router.replace(getOnboardingRoute(response.onboarding_status));
+        return;
+      }
+
+      if (isMFARequired(response)) {
+        authUtils.logout();
+        sessionStorage.setItem("mfa_session_token", response.mfa_session_token);
+        router.replace(Routes.auth.mfa);
+        return;
+      }
+
+      if (isAuthTokens(response)) {
+        authUtils.initializeAuth({
+          access: response.access,
+          refresh: response.refresh,
+          access_expiry: response.access_expiry || "",
+          refresh_expiry: response.refresh_expiry || "",
+        });
+        await fetchCurrentUser();
+        // If a `next` query param exists and is safe, prefer that
+        try {
+          const params =
+            typeof window !== "undefined"
+              ? new URLSearchParams(window.location.search)
+              : null;
+          const next = params?.get("next") || undefined;
+          const to = getSafeNextPath(next, FrontendRoutes.home);
+          router.replace(to);
+        } catch (e) {
+          router.replace(FrontendRoutes.home);
+        }
+        return;
+      }
+
+      console.warn("Unrecognized login response format.", response);
+    })();
+  }, [
+    fetchCurrentUser,
+    response,
+    router,
+    setOnboardingToken,
+    updatePartialUser,
+  ]);
+}

@@ -1,0 +1,142 @@
+@import "tailwindcss";
+@import 'tailwind-scrollbar-hide/v4';
+@import "./default.css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: #fbfaf7;
+  --foreground: #1b2520;
+  --card: #ffffff;
+  --card-foreground: #1b2520;
+  --popover: #ffffff;
+  --popover-foreground: #1b2520;
+  --primary: #0b6e4f;
+  --primary-foreground: #ffffff;
+  --primary-hover: #095940;
+  --primary-press: #074532;
+  --primary-soft: #e6f2ec;
+  --primary-ring: #0b6e4f40;
+  --accent: #e8a33d;
+  --accent-foreground: #1b2520;
+  --accent-soft: #fbf1de;
+  --secondary: #f4f2ec;
+  --secondary-foreground: #1b2520;
+  --muted: #f4f2ec;
+  --muted-foreground: #7a847f;
+  --destructive: #b23a2a;
+  --destructive-foreground: #ffffff;
+  --success: #0b6e4f;
+  --warning: #c97a0e;
+  --info: #2a6fb2;
+  --border: #efece4;
+  --border-strong: #dcd7ca;
+  --input: #efece4;
+  --ring: #0b6e4f;
+  --score-low: #b23a2a;
+  --score-mid: #e8a33d;
+  --score-high: #0b6e4f;
+}
+
+@theme {
+  --color-background: #fbfaf7;
+  --color-foreground: #1b2520;
+  --color-card: #ffffff;
+  --color-card-foreground: #1b2520;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #1b2520;
+  --color-primary: #0b6e4f;
+  --color-primary-foreground: #ffffff;
+  --color-primary-hover: #095940;
+  --color-primary-press: #074532;
+  --color-primary-soft: #e6f2ec;
+  --color-primary-ring: #0b6e4f40;
+  --color-accent: #e8a33d;
+  --color-accent-foreground: #1b2520;
+  --color-accent-soft: #fbf1de;
+  --color-secondary: #f4f2ec;
+  --color-secondary-foreground: #1b2520;
+  --color-muted: #f4f2ec;
+  --color-muted-foreground: #7a847f;
+  --color-destructive: #b23a2a;
+  --color-destructive-foreground: #ffffff;
+  --color-success: #0b6e4f;
+  --color-warning: #c97a0e;
+  --color-info: #2a6fb2;
+  --color-border: #efece4;
+  --color-border-strong: #dcd7ca;
+  --color-input: #efece4;
+  --color-ring: #0b6e4f;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* For now, sticking to the provided light mode palette as base. You can add dark mode colors later. */
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+.form-control {
+  height: 44px;
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding: 0 12px;
+  color: #374151;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 300ms ease, box-shadow 300ms ease;
+}
+
+textarea.form-control {
+  height: auto;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.form-control:focus {
+  border-color: #7e91a2;
+  box-shadow: 0 0 0 3px rgba(126, 145, 162, 0.16);
+}
+
+.no-underline {
+  text-decoration: none !important;
+}
+
+/* ✅ Use actual defined variables */
+.logo-font {
+  font-family: var(--font-logo);
+  font-weight: bold;
+  color: var(--primary-color);
+  font-size: 28px;
+  user-select: none;
+}
+
+.cook-font {
+  font-family: var(--font-logo);
+  font-weight: bold;
+  color: var(--primary-color);
+  user-select: none;
+}
+
+.cook-font-only {
+  font-family: var(--font-logo);
+  font-weight: bold;
+}
+
+.hero-pan {
+  animation: hero-pan 122s linear infinite alternate;
+  background-size: 140% 140%;
+}
+
+@keyframes hero-pan {
+  0% { background-position: top; }
+  100% { background-position: bottom; }
+}

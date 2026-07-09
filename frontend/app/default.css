@@ -1,0 +1,42 @@
+/* ==========================================================================
+   cursor-pointer.css
+   Sensible default cursor behavior for interactive elements
+   ========================================================================== */
+
+/* Native interactive elements */
+button,
+a[href],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+input[type="image"],
+label[for],
+select,
+summary {
+  cursor: pointer;
+  @apply cursor-pointer;
+}
+
+/* ARIA / role-based interactive elements */
+[role="button"],
+[role="link"],
+[role="tab"],
+[role="checkbox"],
+[role="switch"],
+[role="radio"] {
+  cursor: pointer;
+}
+
+/* Explicit opt-in utility */
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+/* Disabled state override */
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
