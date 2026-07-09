@@ -75,6 +75,7 @@ swagger_urls = [
 
 
 urlpatterns += [
+    path("api/v1/yoruba/", include("src.yoruba_learning.urls")),
     *super_lazy_path("api/v1/", shared_routers, use_tag_as_default_namespace=False),
 ]
 urlpatterns += swagger_urls

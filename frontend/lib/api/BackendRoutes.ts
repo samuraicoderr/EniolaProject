@@ -58,6 +58,17 @@ export const BackendRoutes = {
   // ── Top-level aliases (used by service files) ──────────────
   checkUsername: `${API_VERSION}/auth/check_username/`,
   me: `${API_VERSION}/users/me/`,
+
+  // ── Yoruba Learning App ────────────────────────────────────
+  yoruba: {
+    vocabulary: `${API_VERSION}/yoruba/vocabulary/`,
+    progress: `${API_VERSION}/yoruba/progress/`,
+    updateProgress: `${API_VERSION}/yoruba/progress/update_progress/`,
+    leaderboard: `${API_VERSION}/yoruba/leaderboard/`,
+    coachChat: `${API_VERSION}/yoruba/coach/chat/`,
+    adminSettings: `${API_VERSION}/yoruba/admin/settings/`,
+    adminStats: `${API_VERSION}/yoruba/admin/stats/`,
+  },
 } as const;
 
 export default BackendRoutes;

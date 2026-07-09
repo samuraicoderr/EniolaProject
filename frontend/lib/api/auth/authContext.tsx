@@ -89,7 +89,6 @@ const ONBOARDING_ROUTE_MAP: Record<OnboardingStatusType, string> = {
   [OnboardingStatus.NEEDS_PHONE_VERIFICATION]: Routes.auth.onboarding.username,
   [OnboardingStatus.NEEDS_PROFILE_USERNAME]: Routes.auth.onboarding.username,
   [OnboardingStatus.NEEDS_PROFILE_PICTURE]: Routes.auth.onboarding.profilePicture,
-  [OnboardingStatus.NEEDS_ORGANIZATION]: Routes.auth.onboarding.organization,
   [OnboardingStatus.COMPLETED]: Routes.home,
 };
 

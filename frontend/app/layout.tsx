@@ -4,8 +4,8 @@ import "./globals.css";
 import { fontVariables } from "./fontstuff";
 
 export const metadata: Metadata = {
-  title: "Sub - Subscription billing",
-  description: "Sub is a subscription billing and management platform.",
+  title: "Toddler Vocab Adventure - Learn Yoruba!",
+  description: "Learn Yoruba through interactive games, video lessons, and chat with Eniola, the Yoruba Coach!",
 };
 
 import { ThemeProvider } from "next-themes";
@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scrollbar-hide" suppressHydrationWarning>
       <body className={`scrollbar-hide ${fontVariables} antialiased`}>
-        <NextTopLoader color="#c5f045" showSpinner={false} height={3} />
+        <NextTopLoader color="#E2A030" showSpinner={false} height={3} />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProviderClient>
             {children}

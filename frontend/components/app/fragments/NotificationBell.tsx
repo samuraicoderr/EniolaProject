@@ -147,7 +147,7 @@ export default function NotificationBell() {
 
           <div className="border-t border-slate-100 px-4 py-2">
             <Link
-              href={FrontendRoutes.dashboardRoutes.notifications}
+              href="#"
               onClick={() => setOpen(false)}
               className="block text-center text-xs font-medium text-slate-600 hover:text-slate-900"
             >

@@ -9,7 +9,6 @@ export const OnboardingStatus = {
   NEEDS_PHONE_VERIFICATION: "needs_phone_verification",
   NEEDS_PROFILE_USERNAME: "needs_profile_username",
   NEEDS_PROFILE_PICTURE: "needs_profile_picture",
-  NEEDS_ORGANIZATION: "needs_organization",
   COMPLETED: "completed",
 } as const;
 

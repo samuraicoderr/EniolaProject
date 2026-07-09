@@ -177,6 +177,7 @@ MY_APPS = [
     "src.common",  # Shared utilities, custom exceptions, base models
     "src.files",  # File uploads, media management, document templates
     "src.notifications",  # SMS, email, and in-app alert triggers and templates
+    "src.yoruba_learning",  # Yoruba language learning games and AI coach
 ]
 
 
