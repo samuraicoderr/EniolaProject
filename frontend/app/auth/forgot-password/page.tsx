@@ -5,6 +5,9 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  AuthCard,
+  AuthHeading,
+  AuthSubheading,
   InlineAlert,
   InputField,
   PasswordToggle,
@@ -139,128 +142,132 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="space-y-6"
-    >
-      <motion.div variants={itemVariants}>
-        <h1 className="text-[22px] font-semibold cook-font">
-          Reset your password
-        </h1>
-        <p className="text-sm text-black/60 mt-2">
-          {stage === "request"
-            ? "We will send a secure reset code to your email."
-            : "Enter the code and set a new password."}
-        </p>
-      </motion.div>
-
-      {message && <InlineAlert tone="success" message={message} />}
-      {error && <InlineAlert message={error} />}
-
-      {stage === "request" ? (
-        <div className="space-y-4">
-          <InputField
-            label="Email"
-            type="email"
-            placeholder="name@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="email"
-          />
-
-          <PrimaryButton
-            label="Send reset code"
-            loading={loading}
-            onClick={sendOtp}
-          />
-        </div>
-      ) : (
-        <form onSubmit={resetPassword} className="space-y-4" noValidate>
-          <InputField
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="email"
-          />
-
-          <InputField
-            label="Verification code"
-            inputMode="numeric"
-            maxLength={OTP_LENGTH}
-            placeholder="000000"
-            value={otp}
-            onChange={(e) =>
-              setOtp(e.target.value.replace(/\D/g, "").slice(0, OTP_LENGTH))
-            }
-          />
-
-          <InputField
-            label="New password"
-            type={showPassword ? "text" : "password"}
-            placeholder="Create a new password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="new-password"
-            rightElement={
-              <PasswordToggle
-                shown={showPassword}
-                onToggle={() => setShowPassword((prev) => !prev)}
-              />
-            }
-          />
-
-          <InputField
-            label="Confirm password"
-            type={showConfirmPassword ? "text" : "password"}
-            placeholder="Repeat new password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            autoComplete="new-password"
-            rightElement={
-              <PasswordToggle
-                shown={showConfirmPassword}
-                onToggle={() => setShowConfirmPassword((prev) => !prev)}
-              />
-            }
-          />
-
-          <PrimaryButton
-            label="Reset password"
-            type="submit"
-            loading={loading}
-          />
-
-          <motion.button
-            variants={itemVariants}
-            type="button"
-            onClick={resendOtp}
-            disabled={cooldown > 0 || resending}
-            className="w-full text-xs text-primary hover:text-primary-strong transition-colors disabled:opacity-60"
-          >
-            {cooldown > 0
-              ? `Resend code in ${cooldown}s`
-              : resending
-                ? "Sending..."
-                : "Resend code"}
-          </motion.button>
-        </form>
-      )}
-
-      <motion.p
-        variants={itemVariants}
-        className="text-center text-xs text-black/60"
+    <AuthCard>
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="space-y-5"
       >
-        Remembered your password?{" "}
-        <Link
-          href={Routes.auth.login}
-          className="font-semibold text-primary hover:text-primary-strong transition-colors"
+        <motion.div variants={itemVariants} className="space-y-2">
+          <AuthHeading>Reset your password 🔑</AuthHeading>
+          <AuthSubheading>
+            {stage === "request"
+              ? "We will send a secure reset code to your email."
+              : "Enter the code and set a new password."}
+          </AuthSubheading>
+        </motion.div>
+
+        {message && <InlineAlert tone="success" message={message} />}
+        {error && <InlineAlert message={error} />}
+
+        {stage === "request" ? (
+          <div className="space-y-4">
+            <InputField
+              label="Email"
+              type="email"
+              placeholder="name@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+            />
+
+            <PrimaryButton
+              label="Send reset code"
+              loading={loading}
+              onClick={sendOtp}
+            />
+          </div>
+        ) : (
+          <form onSubmit={resetPassword} className="space-y-4" noValidate>
+            <InputField
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+            />
+
+            <InputField
+              label="Verification code"
+              inputMode="numeric"
+              maxLength={OTP_LENGTH}
+              placeholder="000000"
+              value={otp}
+              onChange={(e) =>
+                setOtp(e.target.value.replace(/\D/g, "").slice(0, OTP_LENGTH))
+              }
+            />
+
+            <InputField
+              label="New password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Create a new password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
+              rightElement={
+                <PasswordToggle
+                  shown={showPassword}
+                  onToggle={() => setShowPassword((prev) => !prev)}
+                />
+              }
+            />
+
+            <InputField
+              label="Confirm password"
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="Repeat new password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
+              rightElement={
+                <PasswordToggle
+                  shown={showConfirmPassword}
+                  onToggle={() => setShowConfirmPassword((prev) => !prev)}
+                />
+              }
+            />
+
+            <PrimaryButton
+              label="Reset password"
+              type="submit"
+              loading={loading}
+            />
+
+            <motion.button
+              variants={itemVariants}
+              type="button"
+              onClick={resendOtp}
+              disabled={cooldown > 0 || resending}
+              className="w-full text-xs font-semibold text-[#1B3A8C] transition-colors hover:text-[#122870] disabled:opacity-60"
+              style={{
+                fontFamily: "var(--font-fredoka), system-ui, sans-serif",
+              }}
+            >
+              {cooldown > 0
+                ? `Resend code in ${cooldown}s`
+                : resending
+                  ? "Sending..."
+                  : "Resend code"}
+            </motion.button>
+          </form>
+        )}
+
+        <motion.p
+          variants={itemVariants}
+          className="text-center text-sm font-medium text-[#5A4A2A]"
+          style={{ fontFamily: "var(--font-fredoka), system-ui, sans-serif" }}
         >
-          Back to sign in
-        </Link>
-      </motion.p>
-    </motion.div>
+          Remembered your password?{" "}
+          <Link
+            href={Routes.auth.login}
+            className="font-bold text-[#1B3A8C] underline underline-offset-4 transition-colors hover:text-[#122870]"
+          >
+            Back to sign in
+          </Link>
+        </motion.p>
+      </motion.div>
+    </AuthCard>
   );
 }

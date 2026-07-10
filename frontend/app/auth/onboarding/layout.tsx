@@ -2,7 +2,9 @@
 
 import React, { useEffect, useMemo, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { motion } from "motion/react";
 import OnboardingProgress from "../components/OnboardingProgress";
+import AuthScene from "../components/AuthScene";
 import { useRequiredAuth } from "@/lib/api/auth/authContext";
 import { Routes } from "@/lib/api/FrontendRoutes";
 import { OnboardingStatus } from "@/lib/api/types/auth";
@@ -15,7 +17,6 @@ type StepMeta = {
   subtitle: string;
 };
 
-// Static mapping of all possible onboarding steps to their metadata
 const STEP_METADATA: Record<string, StepMeta> = {
   needs_basic_information: {
     route: Routes.auth.onboarding.basicInfo,
@@ -71,24 +72,16 @@ export default function OnboardingLayout({
   const router = useRouter();
   const { onboardingToken, user, partialUser, isLoading } = useRequiredAuth(
     Routes.auth.login,
-    { allowOnboarding: true }
+    { allowOnboarding: true },
   );
   const hasRedirected = useRef(false);
 
-  /**
-   * Build dynamic step config from backend's onboarding_flow
-   */
   const stepConfig = useMemo(() => {
     const flow = partialUser?.onboarding_flow || [];
-    // Filter flow to only include steps we have metadata for
     const validSteps = flow.filter((status) => STEP_METADATA[status]);
-    // Map status keys to step metadata
     return validSteps.map((status) => STEP_METADATA[status]);
   }, [partialUser?.onboarding_flow]);
 
-  /**
-   * Determine active step from backend status
-   */
   const activeStepIndex = useMemo(() => {
     const routeIndex = stepConfig.findIndex((step) => step.route === pathname);
     if (routeIndex >= 0) return routeIndex;
@@ -96,7 +89,7 @@ export default function OnboardingLayout({
     if (!partialUser?.onboarding_status) return 0;
 
     const index = stepConfig.findIndex(
-      (step) => step.statusKey === partialUser.onboarding_status
+      (step) => step.statusKey === partialUser.onboarding_status,
     );
 
     return index >= 0 ? index : 0;
@@ -105,17 +98,14 @@ export default function OnboardingLayout({
   const totalSteps = stepConfig.length;
   const activeStep = stepConfig[activeStepIndex];
 
-  /**
-   * Smart Redirect & Guard
-   */
   useEffect(() => {
     if (isLoading || hasRedirected.current) return;
 
     const hasIdentity = Boolean(
       onboardingToken ||
-        partialUser?.onboarding_token ||
-        partialUser?.email ||
-        user?.email
+      partialUser?.onboarding_token ||
+      partialUser?.email ||
+      user?.email,
     );
 
     if (!hasIdentity) {
@@ -124,17 +114,14 @@ export default function OnboardingLayout({
       return;
     }
 
-    // Fully completed → go home
     if (user?.onboarding_status === OnboardingStatus.COMPLETED) {
       hasRedirected.current = true;
       router.replace(Routes.home);
       return;
     }
 
-    // Check if current pathname is a valid step in the flow
     const isValidStep = stepConfig.some((step) => step.route === pathname);
 
-    // Only redirect if pathname is not a valid step in the flow
     if (!isValidStep && activeStep) {
       hasRedirected.current = true;
       router.replace(activeStep.route);
@@ -150,29 +137,17 @@ export default function OnboardingLayout({
     router,
   ]);
 
-  /**
-   * Loading State (Prevents Flicker)
-   */
   if (isLoading || !partialUser || !activeStep) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-pulse text-black/40">
-          <img
-            src={appConfig.logos.grey}
-            alt={appConfig.appName}
-            className="h-16 mx-auto mb-4"
-          />
-          <p className="text-sm text-center">Preparing your setup...</p>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="animate-pulse text-center text-[#FFFBF0]">
+          <p className="text-lg font-bold">Preparing your adventure...</p>
         </div>
       </div>
     );
   }
 
-  /**
-   * Handle navigation to a specific step
-   */
   const handleStepClick = (stepIndex: number) => {
-    // Only allow navigation to previous steps or current step
     if (stepIndex <= activeStepIndex) {
       const targetStep = stepConfig[stepIndex];
       if (targetStep) {
@@ -182,24 +157,40 @@ export default function OnboardingLayout({
   };
 
   return (
-    <div className="w-full" aria-live="polite">
-      <OnboardingProgress
-        currentStep={activeStepIndex}
-        totalSteps={totalSteps}
-        steps={stepConfig}
-        onStepClick={handleStepClick}
-      />
+    <div className="auth-layout relative flex min-h-screen w-full items-center justify-center overflow-hidden p-4">
+      <AuthScene />
 
-      <header className="mt-6 mb-6">
-        <h1 className="text-[22px] font-semibold cook-font">
-          {activeStep.title}
-        </h1>
-        <p className="text-sm text-black/60 mt-2">
-          {activeStep.subtitle}
-        </p>
-      </header>
+      <main className="relative z-10 flex w-full flex-col items-center justify-center py-8">
+        <motion.div
+          initial={{ opacity: 0, y: 24, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ type: "spring", stiffness: 260, damping: 22 }}
+          className="relative w-full max-w-[520px] rounded-[2rem] border-[5px] border-[#D4A017] bg-[rgba(255,251,240,0.97)] p-6 shadow-[0_14px_0_#A06808,0_24px_48px_rgba(0,0,0,0.22)] sm:p-8"
+          style={{ fontFamily: "var(--font-fredoka), system-ui, sans-serif" }}
+        >
+          <div className="absolute left-4 right-4 top-0 h-2 rounded-b-full bg-[repeating-linear-gradient(90deg,#1B3A8C_0px,#1B3A8C_10px,#D4A017_10px,#D4A017_20px)]" />
 
-      <main>{children}</main>
+          <div className="pt-4" aria-live="polite">
+            <OnboardingProgress
+              currentStep={activeStepIndex}
+              totalSteps={totalSteps}
+              steps={stepConfig}
+              onStepClick={handleStepClick}
+            />
+
+            <header className="mb-5 mt-5">
+              <h1 className="text-2xl font-bold text-[#1B3A8C] sm:text-3xl">
+                {activeStep.title}
+              </h1>
+              <p className="mt-1 text-sm font-semibold text-[#5A4A2A]">
+                {activeStep.subtitle}
+              </p>
+            </header>
+
+            <main>{children}</main>
+          </div>
+        </motion.div>
+      </main>
     </div>
   );
 }

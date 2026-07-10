@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { HeroPanel, LogoMark } from "./components/AuthUI";
+import AuthScene from "./components/AuthScene";
+import { LogoMark } from "./components/AuthUI";
 import AuthRedirectClient from "./AuthRedirectClient";
+import "./auth.css";
 
 export const metadata: Metadata = {
-  title: "Sub - Sign In",
-  description: "Sign in or create your Sub account to manage your writing workflow.",
+  title: "Vocab Adventure - Sign In",
+  description:
+    "Sign in or create your Vocab Adventure account to start learning Yoruba!",
 };
 
 export default function AuthLayout({
@@ -15,23 +18,23 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen w-full bg-white">
-      <HeroPanel />
+    <div className="auth-layout relative flex min-h-screen w-full items-center justify-center overflow-hidden p-4">
+      <AuthScene />
 
-      <main className="flex min-h-screen w-full flex-col items-center justify-center bg-white px-6 py-12 lg:w-[55%] xl:w-[58%]">
-        <div className="w-full max-w-[400px]">
-          <Suspense fallback={null}>
-            <AuthRedirectClient />
-          </Suspense>
-          <Link
-            href="/"
-            className="mx-auto mb-12 block w-fit no-underline"
-            aria-label="Go to Sub home"
-          >
-            <LogoMark />
-          </Link>
-          {children}
-        </div>
+      <main className="relative z-10 flex w-full flex-col items-center justify-center py-8">
+        <Link
+          href="/"
+          className="mb-6 block w-fit no-underline transition-transform hover:scale-105 active:scale-95"
+          aria-label="Go to Vocab Adventure home"
+        >
+          <LogoMark />
+        </Link>
+
+        <Suspense fallback={null}>
+          <AuthRedirectClient />
+        </Suspense>
+
+        {children}
       </main>
     </div>
   );

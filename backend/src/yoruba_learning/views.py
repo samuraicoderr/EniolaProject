@@ -28,6 +28,7 @@ class VocabularyViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Vocabulary.objects.all()
     serializer_class = VocabularySerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
 
     def get_queryset(self):
         queryset = self.queryset
@@ -43,6 +44,7 @@ class ProgressViewSet(viewsets.ModelViewSet):
     """
     serializer_class = UserProgressSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
 
     def get_queryset(self):
         return UserProgress.objects.filter(user=self.request.user)

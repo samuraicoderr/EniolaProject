@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 
 interface StepMeta {
@@ -25,12 +27,15 @@ export default function OnboardingProgress({
   const progress = Math.round(((safeStep + 1) / safeTotal) * 100);
 
   return (
-    <div className="w-full mb-8">
-      <div className="flex items-center justify-between text-xs text-black/60">
+    <div className="w-full">
+      <div
+        className="flex items-center justify-between text-xs font-bold text-[#5A4A2A]"
+        style={{ fontFamily: "var(--font-fredoka), system-ui, sans-serif" }}
+      >
         <span>
           Step {safeStep + 1} of {safeTotal}
         </span>
-        <span className="text-primary">{progress}% complete</span>
+        <span className="text-[#1B3A8C]">{progress}% complete</span>
       </div>
 
       <div
@@ -45,11 +50,6 @@ export default function OnboardingProgress({
           const isCompleted = i < safeStep;
           const isActive = i === safeStep;
           const isClickable = Boolean(onStepClick && i <= safeStep);
-          const stateClass = isCompleted
-            ? "bg-primary"
-            : isActive
-              ? "bg-primary/60"
-              : "bg-black/10";
 
           return (
             <button
@@ -57,8 +57,16 @@ export default function OnboardingProgress({
               type="button"
               onClick={() => isClickable && onStepClick?.(i)}
               disabled={!isClickable}
-              className={`h-1.5 flex-1 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${stateClass} ${
-                isClickable ? "cursor-pointer hover:bg-primary/80" : "cursor-default"
+              className={`h-3 flex-1 rounded-full border-2 border-[#D4A017] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1B3A8C]/30 ${
+                isCompleted
+                  ? "bg-[#2DC653]"
+                  : isActive
+                    ? "bg-[#1B3A8C]"
+                    : "bg-[#FFF8E7]"
+              } ${
+                isClickable
+                  ? "cursor-pointer hover:scale-105"
+                  : "cursor-default opacity-70"
               }`}
               aria-label={step?.title || `Step ${i + 1}`}
               title={step?.title}

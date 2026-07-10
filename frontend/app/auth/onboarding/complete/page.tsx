@@ -2,46 +2,62 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "motion/react";
 import { InlineAlert, PrimaryButton } from "../../components/AuthUI";
 import { useAuth } from "@/lib/api/auth/authContext";
 import { Routes } from "@/lib/api/FrontendRoutes";
-import { interpretServerError, isInvalidOrExpiredOnboardingTokenError } from "@/lib/utils";
+import {
+  interpretServerError,
+  isInvalidOrExpiredOnboardingTokenError,
+} from "@/lib/utils";
 import { storeAuthRedirectMessage } from "@/lib/api/auth/redirect";
 
 export default function CompletePage() {
   const router = useRouter();
-  const { onboardingToken, exchangeOnboardingTokenForAuth, setOnboardingToken } = useAuth();
+  const {
+    onboardingToken,
+    exchangeOnboardingTokenForAuth,
+    setOnboardingToken,
+  } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const completeOnboarding = async () => {
       if (!onboardingToken) {
-        // No onboarding token, redirect to login
         router.replace(Routes.auth.login);
         return;
       }
 
       try {
         await exchangeOnboardingTokenForAuth(onboardingToken);
-        // Successfully exchanged tokens and logged in, redirect to home
         router.replace(Routes.home);
       } catch (err) {
         if (isInvalidOrExpiredOnboardingTokenError(err)) {
           setOnboardingToken(null);
-          storeAuthRedirectMessage("Your onboarding session expired. Please sign in again.");
+          storeAuthRedirectMessage(
+            "Your onboarding session expired. Please sign in again.",
+          );
           router.replace(Routes.auth.login);
           return;
         }
 
         const details = interpretServerError(err);
-        setError(details[0] || "Failed to complete onboarding. Please try logging in manually.");
+        setError(
+          details[0] ||
+            "Failed to complete onboarding. Please try logging in manually.",
+        );
         setLoading(false);
       }
     };
 
     completeOnboarding();
-  }, [onboardingToken, exchangeOnboardingTokenForAuth, router, setOnboardingToken]);
+  }, [
+    onboardingToken,
+    exchangeOnboardingTokenForAuth,
+    router,
+    setOnboardingToken,
+  ]);
 
   const goHome = () => {
     router.replace(Routes.home);
@@ -50,10 +66,22 @@ export default function CompletePage() {
   if (loading) {
     return (
       <div className="text-center">
-        <h2 className="text-[22px] font-semibold cook-font mb-2">
-          Welcome to Layo Studio
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          className="mx-auto mb-4 text-5xl"
+        >
+          ⭐
+        </motion.div>
+        <h2
+          className="mb-2 text-2xl font-bold text-[#1B3A8C]"
+          style={{ fontFamily: "var(--font-fredoka), system-ui, sans-serif" }}
+        >
+          Getting ready...
         </h2>
-        <p className="text-sm text-black/60 mb-6">Setting up your account...</p>
+        <p className="mb-6 text-sm font-semibold text-[#5A4A2A]">
+          Setting up your account
+        </p>
         <PrimaryButton label="Loading..." disabled loading />
       </div>
     );
@@ -61,11 +89,22 @@ export default function CompletePage() {
 
   return (
     <div className="text-center">
-      <h2 className="text-[22px] font-semibold cook-font mb-2">
-        Welcome to Layo Studio
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ type: "spring", stiffness: 260, damping: 18 }}
+        className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-[#2DC653] text-4xl shadow-lg"
+      >
+        🎉
+      </motion.div>
+      <h2
+        className="mb-2 text-2xl font-bold text-[#1B3A8C]"
+        style={{ fontFamily: "var(--font-fredoka), system-ui, sans-serif" }}
+      >
+        Welcome to Vocab Adventure!
       </h2>
-      <p className="text-sm text-black/60 mb-6">
-        Your account is ready. Let&apos;s get started.
+      <p className="mb-6 text-sm font-semibold text-[#5A4A2A]">
+        Your account is ready. Let&apos;s start learning!
       </p>
       {error && <InlineAlert message={error} />}
       <PrimaryButton label="Get started" type="button" onClick={goHome} />

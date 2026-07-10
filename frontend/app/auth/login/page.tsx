@@ -6,6 +6,9 @@ import { motion } from "motion/react";
 import AuthDivider from "../components/AuthDivider";
 import OAuthButtons from "../components/OAuthButtons";
 import {
+  AuthCard,
+  AuthHeading,
+  AuthSubheading,
   InlineAlert,
   InputField,
   PasswordToggle,
@@ -35,8 +38,12 @@ function LoginPageContent() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
-  const [formMessage, setFormMessage] = useState<string | null>(() => consumeAuthRedirectMessage());
-  const [loginResponse, setLoginResponse] = useState<OAuthLoginResponse | null>(null);
+  const [formMessage, setFormMessage] = useState<string | null>(() =>
+    consumeAuthRedirectMessage(),
+  );
+  const [loginResponse, setLoginResponse] = useState<OAuthLoginResponse | null>(
+    null,
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isBusy = isSubmitting || isLoading;
@@ -66,9 +73,12 @@ function LoginPageContent() {
     if (!validate()) return;
 
     try {
-        setIsSubmitting(true);
-        const response = await AuthService.login({ email: email.trim(), password });
-        setLoginResponse(response);
+      setIsSubmitting(true);
+      const response = await AuthService.login({
+        email: email.trim(),
+        password,
+      });
+      setLoginResponse(response);
     } catch (err) {
       console.error("Login error:", err);
       const serverErrors = interpretServerError(err);
@@ -80,86 +90,101 @@ function LoginPageContent() {
   };
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="space-y-6"
-    >
-      <motion.div variants={itemVariants}>
-        <h1 className="mb-10 text-center text-[18px] font-thin text-primary">
-          Hey, enter your details to sign in to your account.
-        </h1>
-      </motion.div>
+    <AuthCard>
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="space-y-5"
+      >
+        <motion.div variants={itemVariants} className="space-y-2">
+          <AuthHeading>Welcome back! 🎉</AuthHeading>
+          <AuthSubheading>
+            Sign in to continue your Yoruba learning adventure.
+          </AuthSubheading>
+        </motion.div>
 
-      {formMessage && <InlineAlert message={formMessage} />}
+        {formMessage && <InlineAlert message={formMessage} />}
 
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-        <InputField
-          label="Email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="name@example.com"
-          autoComplete="email"
-          error={formErrors.email}
-          disabled={isBusy}
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+          <InputField
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="name@example.com"
+            autoComplete="email"
+            error={formErrors.email}
+            disabled={isBusy}
+          />
+
+          <InputField
+            label="Password"
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your password"
+            autoComplete="current-password"
+            error={formErrors.password}
+            disabled={isBusy}
+            rightElement={
+              <PasswordToggle
+                shown={showPassword}
+                onToggle={() => setShowPassword((prev) => !prev)}
+                disabled={isBusy}
+              />
+            }
+          />
+
+          <div className="flex justify-end">
+            <Link
+              className="text-xs font-semibold text-[#1B3A8C] underline-offset-4 transition-colors hover:text-[#122870] hover:underline"
+              href={Routes.auth.forgotPassword}
+              style={{
+                fontFamily: "var(--font-fredoka), system-ui, sans-serif",
+              }}
+            >
+              Forgot password?
+            </Link>
+          </div>
+
+          <PrimaryButton
+            label="Sign in"
+            loading={isBusy}
+            disabled={isBusy}
+            type="submit"
+          />
+        </form>
+
+        <AuthDivider text="or" />
+        <OAuthButtons
+          mode="login"
+          onError={(message) => setFormMessage(message)}
         />
 
-        <InputField
-          label="Password"
-          type={showPassword ? "text" : "password"}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Enter your password"
-          autoComplete="current-password"
-          error={formErrors.password}
-          disabled={isBusy}
-          rightElement={
-            <PasswordToggle
-              shown={showPassword}
-              onToggle={() => setShowPassword((prev) => !prev)}
-              disabled={isBusy}
-            />
-          }
-        />
-
-        <div className="flex justify-end">
-          <Link
-            className="text-[12px] text-primary underline-offset-4 transition-colors hover:text-[primary-bold] hover:underline"
-            href={Routes.auth.forgotPassword}
-          >
-            Forgot password?
-          </Link>
-        </div>
-
-        <PrimaryButton
-          label="Sign in"
-          loading={isBusy}
-          disabled={isBusy}
-          type="submit"
-        />
-      </form>
-
-      <AuthDivider text="or" />
-      <OAuthButtons mode="login" onError={(message) => setFormMessage(message)} />
-
-      <motion.p variants={itemVariants} className="mt-8 text-center text-[14px] text-gray-600">
-        New to Sub?{" "}
-        <Link
-          href={Routes.auth.register}
-          className="font-medium text-primary underline underline-offset-4 transition-colors hover:text-[primary-bold]"
+        <motion.p
+          variants={itemVariants}
+          className="text-center text-sm font-medium text-[#5A4A2A]"
+          style={{ fontFamily: "var(--font-fredoka), system-ui, sans-serif" }}
         >
-          Create Account
-        </Link>
-      </motion.p>
-    </motion.div>
+          New here?{" "}
+          <Link
+            href={Routes.auth.register}
+            className="font-bold text-[#1B3A8C] underline underline-offset-4 transition-colors hover:text-[#122870]"
+          >
+            Create Account
+          </Link>
+        </motion.p>
+      </motion.div>
+    </AuthCard>
   );
 }
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="auth-subheading">Loading sign in...</div>}>
+    <Suspense
+      fallback={<div className="text-[#FFFBF0]">Loading sign in...</div>}
+    >
       <LoginPageContent />
     </Suspense>
   );

@@ -139,7 +139,7 @@ class OnboardingMixin:
         OnboardingStatus.NEEDS_PASSWORD,
         OnboardingStatus.NEEDS_EMAIL_VERIFICATION,
         OnboardingStatus.NEEDS_PROFILE_USERNAME,
-        OnboardingStatus.NEEDS_PROFILE_PICTURE,
+        # OnboardingStatus.NEEDS_PROFILE_PICTURE,
         OnboardingStatus.COMPLETED,
     ]
 

@@ -1,17 +1,33 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "motion/react";
 import { InlineAlert, PrimaryButton } from "../../components/AuthUI";
 import OnboardingService from "@/lib/api/services/Onboarding.Service";
 import { useAuth, getOnboardingRoute } from "@/lib/api/auth/authContext";
 import { Routes } from "@/lib/api/FrontendRoutes";
-import { interpretServerError, isInvalidOrExpiredOnboardingTokenError } from "@/lib/utils";
+import {
+  interpretServerError,
+  isInvalidOrExpiredOnboardingTokenError,
+} from "@/lib/utils";
 import { storeAuthRedirectMessage } from "@/lib/api/auth/redirect";
 
 export default function ProfilePicturePage() {
   const router = useRouter();
-  const { onboardingToken, partialUser, updatePartialUser, exchangeOnboardingTokenForAuth, setOnboardingToken } = useAuth();
+  const {
+    onboardingToken,
+    partialUser,
+    updatePartialUser,
+    exchangeOnboardingTokenForAuth,
+    setOnboardingToken,
+  } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [file, setFile] = useState<File | null>(null);
@@ -26,7 +42,9 @@ export default function ProfilePicturePage() {
 
   const redirectExpiredOnboarding = useCallback(() => {
     setOnboardingToken(null);
-    storeAuthRedirectMessage("Your onboarding session expired. Please sign in again.");
+    storeAuthRedirectMessage(
+      "Your onboarding session expired. Please sign in again.",
+    );
     router.replace(Routes.auth.login);
   }, [router, setOnboardingToken]);
 
@@ -36,7 +54,6 @@ export default function ProfilePicturePage() {
       return;
     }
 
-    // Fetch latest user data from backend
     const fetchUserData = async () => {
       try {
         const userData = await OnboardingService.getUserData(token);
@@ -49,10 +66,12 @@ export default function ProfilePicturePage() {
           onboarding_status: userData.onboarding_status,
           onboarding_flow: userData.onboarding_flow,
         });
-        // Update preview with fetched data
         if (userData.profile_picture) {
           const pp = userData.profile_picture;
-          const previewUrl = typeof pp === 'string' ? pp : (pp.medium_square_crop || pp.original || null);
+          const previewUrl =
+            typeof pp === "string"
+              ? pp
+              : pp.medium_square_crop || pp.original || null;
           setPreview(previewUrl);
         } else {
           setPreview(null);
@@ -101,8 +120,7 @@ export default function ProfilePicturePage() {
         onboarding_status: result.onboarding_status,
         profile_picture: result.profile_picture,
       });
-      
-      // Check if onboarding is completed and auto-login
+
       if (result.onboarding_status === "completed") {
         await exchangeOnboardingTokenForAuth(token);
         router.replace(Routes.home);
@@ -126,10 +144,14 @@ export default function ProfilePicturePage() {
     <div>
       {error && <InlineAlert message={error} />}
 
-      <div
-        className={`w-full rounded-[18px] border-2 border-dashed px-6 py-10 text-center transition-all cursor-pointer ${
-          dragActive ? "border-primary bg-primary/5" : "border-black/10 bg-white"
+      <motion.div
+        whileHover={{ scale: 1.01 }}
+        className={`w-full cursor-pointer rounded-3xl border-[4px] border-dashed px-6 py-10 text-center transition-all ${
+          dragActive
+            ? "border-[#1B3A8C] bg-[#EDF1FF]"
+            : "border-[#D4A017] bg-white"
         }`}
+        style={{ fontFamily: "var(--font-fredoka), system-ui, sans-serif" }}
         onDragOver={(e) => {
           e.preventDefault();
           setDragActive(true);
@@ -142,20 +164,23 @@ export default function ProfilePicturePage() {
       >
         {preview ? (
           <img
-            className="mx-auto h-32 w-32 rounded-full object-cover border border-black/10"
+            className="mx-auto h-32 w-32 rounded-full border-[4px] border-[#D4A017] object-cover shadow-lg"
             src={preview}
             alt="Profile preview"
           />
         ) : (
-          <div className="mx-auto h-20 w-20 rounded-full bg-primary/10 text-primary flex items-center justify-center text-2xl font-semibold">
-            {partialUser?.first_name?.[0] || "K"}
+          <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border-[4px] border-[#D4A017] bg-[#1B3A8C] text-3xl font-bold text-[#FFFBF0] shadow-lg">
+            {partialUser?.first_name?.[0] || "?"}
           </div>
         )}
 
-        <p className="mt-4 text-sm text-black/60">
-          <span className="text-primary font-semibold">Click to upload</span> or drag and drop
+        <p className="mt-4 text-sm font-semibold text-[#5A4A2A]">
+          <span className="text-[#1B3A8C]">Click to upload</span> or drag and
+          drop
         </p>
-        <p className="text-xs text-black/40 mt-1">PNG, JPG, WEBP up to 5MB</p>
+        <p className="mt-1 text-xs font-medium text-[#5A4A2A]/70">
+          PNG, JPG, WEBP up to 5MB
+        </p>
 
         <input
           ref={inputRef}
@@ -164,7 +189,7 @@ export default function ProfilePicturePage() {
           hidden
           onChange={(e) => onFile(e.target.files?.[0] || null)}
         />
-      </div>
+      </motion.div>
 
       <div className="mt-6">
         <PrimaryButton

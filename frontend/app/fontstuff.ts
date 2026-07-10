@@ -1,7 +1,6 @@
-import { Jersey_25 } from "next/font/google";
+import { Jersey_25, Fredoka } from "next/font/google";
 import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
-
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,35 +18,39 @@ const bobbleboddy = localFont({
   display: "swap",
 });
 
-
 export const jersey = Jersey_25({
   subsets: ["latin"],
   weight: "400",
   variable: "--font-jersey",
 });
 
-
 export const playwrite = localFont({
   src: "../public/fonts/playwrite/PlaywriteDESAS-VariableFont_wght.ttf",
   variable: "--font-playwrite",
   display: "swap",
-})
+});
 
-
-export const pixelifySans = localFont({ 
+export const pixelifySans = localFont({
   src: "../public/fonts/pixelifysans/PixelifySans-Regular.ttf",
   variable: "--font-logo",
   display: "swap",
-})
+});
 
+export const fredoka = Fredoka({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-fredoka",
+  display: "swap",
+});
 
 const _fontVariables = [
-    geistSans.variable,
-    geistMono.variable,
-    bobbleboddy.variable,
-    jersey.variable,
-    playwrite.variable,
-    pixelifySans.variable,
-]
+  geistSans.variable,
+  geistMono.variable,
+  bobbleboddy.variable,
+  jersey.variable,
+  playwrite.variable,
+  pixelifySans.variable,
+  fredoka.variable,
+];
 
 export const fontVariables: string = _fontVariables.join(" ");
