@@ -1,19 +1,18 @@
-from rest_framework import serializers
-from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
-from phonenumber_field.serializerfields import PhoneNumberField
-from drf_spectacular.utils import extend_schema_field
+from django.core.validators import validate_email
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from phonenumber_field.phonenumber import to_python
-
+from phonenumber_field.serializerfields import PhoneNumberField
+from rest_framework import serializers
 
 from src.common.serializers import ThumbnailerJSONSerializer
 from src.users.models import User, WaitList
 
-
 # ─────────────────────────────────────────────
 # SHARED FIELDS
 # ─────────────────────────────────────────────
+
 
 class EmailOrPhoneField(serializers.Field):
     """
@@ -49,10 +48,13 @@ class EmailOrPhoneField(serializers.Field):
 # USER
 # ─────────────────────────────────────────────
 
+
 class CheckUsernameSerializer(serializers.Serializer):
     """Serializer for validating username availability."""
+
     username = serializers.CharField(max_length=150, required=True)
     is_available = serializers.BooleanField(read_only=True)
+
 
 class UserSerializer(serializers.ModelSerializer):
     """Read-only serializer for returning user profile data."""
@@ -82,6 +84,7 @@ class UserSerializer(serializers.ModelSerializer):
             "is_email_verified",
             "is_phone_number_verified",
             "mfa_is_enabled",
+            "is_staff",
         )
         read_only_fields = [*fields]
 
@@ -155,6 +158,7 @@ class UpdateUserSerializer(serializers.ModelSerializer):
 # WAITLIST
 # ─────────────────────────────────────────────
 
+
 class WaitListSerializer(serializers.ModelSerializer):
     """Input/output serializer for waitlist entries. ip_address is never exposed."""
 
@@ -168,8 +172,10 @@ class WaitListSerializer(serializers.ModelSerializer):
 # PASSWORD
 # ─────────────────────────────────────────────
 
+
 class PasswordResetSerializer(serializers.Serializer):
     """For authenticated password change (requires current password)."""
+
     old_password = serializers.CharField(max_length=500, write_only=True)
     new_password = serializers.CharField(max_length=500, write_only=True)
     repeat_new_password = serializers.CharField(max_length=500, write_only=True)
@@ -177,16 +183,19 @@ class PasswordResetSerializer(serializers.Serializer):
 
 class ResetPasswordAndSendEmailSerializer(serializers.Serializer):
     """Accepts an email to trigger a forgot-password flow."""
+
     email = serializers.EmailField()
 
 
 class EmailOrPhoneSerializer(serializers.Serializer):
     """Accepts email or phone as a single unified field."""
+
     email_or_phone_number = EmailOrPhoneField(required=True)
 
 
 class ResetForgottenPasswordSerializer(serializers.Serializer):
     """Completes a forgot-password reset using an OTP."""
+
     email_or_phone_number = EmailOrPhoneField(required=True)
     otp = serializers.CharField(required=True, write_only=True)
     password = serializers.CharField(required=True, write_only=True)
@@ -197,8 +206,10 @@ class ResetForgottenPasswordSerializer(serializers.Serializer):
 # OTP VERIFICATION
 # ─────────────────────────────────────────────
 
+
 class EmailVerificationSerializer(serializers.Serializer):
     """Used for both sending and checking email OTPs. `otp` is optional on send."""
+
     email = serializers.EmailField()
     otp = serializers.CharField(max_length=10, write_only=True, required=False)
 
@@ -211,6 +222,7 @@ class PhoneVerificationSerializer(serializers.Serializer):
     Used for both sending and checking phone OTPs. `otp` is optional on send.
     Region is intentionally not set here — enforced at the country level elsewhere.
     """
+
     phone_number = PhoneNumberField()
     otp = serializers.CharField(max_length=10, write_only=True, required=False)
 
@@ -219,8 +231,10 @@ class PhoneVerificationSerializer(serializers.Serializer):
 # 2FA
 # ─────────────────────────────────────────────
 
+
 class TFA_Serializer(serializers.Serializer):
     """Carries a TFA challenge token (used in the unauthenticated send-2fa-otp flow)."""
+
     tfa_token = serializers.CharField(max_length=200, write_only=True)
 
 
@@ -230,18 +244,21 @@ class TFA_OtpSerializer(serializers.Serializer):
     Does NOT extend TFA_Serializer — check_2fa_otp requires IsAuthenticated,
     so the user is already identified via the session; no tfa_token is needed.
     """
+
     otp = serializers.CharField(max_length=10, write_only=True)
 
 
 class BarcodeStuffSerializer(serializers.Serializer):
     """Input/output for the request_qr_code endpoint."""
+
     password = serializers.CharField(write_only=True)
-    qrcode_uri = serializers.CharField(read_only=True)   # matches view response key
+    qrcode_uri = serializers.CharField(read_only=True)  # matches view response key
     image_url = serializers.CharField(read_only=True)
 
 
 class ResetRecoveryCodesSerializer(serializers.Serializer):
     """Input for recovery code regeneration. Codes are write-once, read-never."""
+
     password = serializers.CharField(write_only=True)
     recovery_codes = serializers.ListField(
         child=serializers.CharField(), read_only=True
@@ -266,9 +283,13 @@ class MFAVerifySerializer(serializers.Serializer):
         choices=["totp", "sms", "email", "webauthn", "push"]
     )
     otp = serializers.CharField(max_length=20, required=False, allow_blank=True)
-    approval_code = serializers.CharField(max_length=20, required=False, allow_blank=True)
+    approval_code = serializers.CharField(
+        max_length=20, required=False, allow_blank=True
+    )
     challenge = serializers.CharField(max_length=5000, required=False, allow_blank=True)
-    assertion = serializers.CharField(max_length=10000, required=False, allow_blank=True)
+    assertion = serializers.CharField(
+        max_length=10000, required=False, allow_blank=True
+    )
 
 
 class MFATotpSetupSerializer(serializers.Serializer):
@@ -300,8 +321,10 @@ class MFAPushDeviceSerializer(serializers.Serializer):
 # ONBOARDING
 # ─────────────────────────────────────────────
 
+
 class GetOboardingTokenSerializer(serializers.Serializer):
     """Authenticates a user who hasn't completed onboarding and returns a token."""
+
     email = serializers.EmailField(write_only=True)
     password = serializers.CharField(max_length=500, write_only=True)
     onboarding_token = serializers.CharField(max_length=500, read_only=True)
@@ -314,21 +337,28 @@ class Onboarding:
         onboarding_token = serializers.CharField(max_length=500, write_only=True)
 
     class ChangeBasicInfoSerializer(UseOnboardingTokenSerializer):
-        first_name = serializers.CharField(max_length=150, required=False, allow_blank=True)
-        last_name = serializers.CharField(max_length=150, required=False, allow_blank=True)
-        password = serializers.CharField(max_length=500, write_only=True, required=False, allow_blank=True)
+        first_name = serializers.CharField(
+            max_length=150, required=False, allow_blank=True
+        )
+        last_name = serializers.CharField(
+            max_length=150, required=False, allow_blank=True
+        )
+        password = serializers.CharField(
+            max_length=500, write_only=True, required=False, allow_blank=True
+        )
 
     class ChangePasswordSerializer(UseOnboardingTokenSerializer):
         password = serializers.CharField(max_length=500, write_only=True, required=True)
 
     class ChangeUserNameSerializer(UseOnboardingTokenSerializer):
-        new_username = serializers.CharField(max_length=150, write_only=True, required=False, allow_blank=True)
+        new_username = serializers.CharField(
+            max_length=150, write_only=True, required=False, allow_blank=True
+        )
 
     class CheckUserNameSerializer(UseOnboardingTokenSerializer):
         username = serializers.CharField(max_length=150, write_only=True, required=True)
 
     class ChangeProfilePictureSerializer(UseOnboardingTokenSerializer):
-
         @extend_schema_field(OpenApiTypes.BINARY)
         class ProfilePictureField(serializers.ImageField):
             pass
@@ -340,13 +370,21 @@ class Onboarding:
 # OAUTH
 # ─────────────────────────────────────────────
 
+
 class OAuthCodeExchangeSerializer(serializers.Serializer):
     """Payload for provider authorization code exchange."""
+
     # input only
     code = serializers.CharField(max_length=4096, write_only=True)
-    redirect_uri = serializers.URLField(required=False, allow_blank=True, write_only=True)
-    state = serializers.CharField(max_length=1024, required=False, allow_blank=True, write_only=True)
-    code_verifier = serializers.CharField(max_length=2048, required=False, allow_blank=True, write_only=True)
+    redirect_uri = serializers.URLField(
+        required=False, allow_blank=True, write_only=True
+    )
+    state = serializers.CharField(
+        max_length=1024, required=False, allow_blank=True, write_only=True
+    )
+    code_verifier = serializers.CharField(
+        max_length=2048, required=False, allow_blank=True, write_only=True
+    )
 
     def validate_code(self, value: str) -> str:
         value = value.strip()

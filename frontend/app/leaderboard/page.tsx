@@ -2,8 +2,95 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { motion } from "motion/react";
 import { useRequiredAuth } from "@/lib/api/auth/authContext";
-import YorubaService, { LeaderboardUser } from "@/lib/api/services/Yoruba.Service";
+import YorubaService, {
+  LeaderboardUser,
+} from "@/lib/api/services/Yoruba.Service";
+import { PageShell, PageCard } from "@/components/app/PageShell";
+
+const avatars = [
+  "🦁",
+  "🐘",
+  "🦒",
+  "🐦",
+  "🐢",
+  "🦋",
+  "🐸",
+  "🦓",
+  "🦊",
+  "🐬",
+  "🦅",
+  "🐼",
+];
+
+function getRankStyle(rank: number, isSelf: boolean) {
+  if (isSelf) {
+    return {
+      bg: "linear-gradient(135deg, #1B3A8C 0%, #2A5FCC 100%)",
+      border: "#D4A017",
+      shadow: "#0D1E56",
+      nameColor: "#FFFBF0",
+      starColor: "#FFE082",
+      badgeBg: "#D4A017",
+      badgeBorder: "#A06808",
+      badgeText: "#1B3A8C",
+    };
+  }
+  if (rank === 1) {
+    return {
+      bg: "#FFF8E1",
+      border: "#D4A017",
+      shadow: "#A06808",
+      nameColor: "#1B3A8C",
+      starColor: "#D4A017",
+      badgeBg: "#FFFBF0",
+      badgeBorder: "#D4A017",
+      badgeText: "#5A4020",
+    };
+  }
+  if (rank === 2) {
+    return {
+      bg: "#F5F5F5",
+      border: "#9E9E9E",
+      shadow: "#616161",
+      nameColor: "#1B3A8C",
+      starColor: "#D4A017",
+      badgeBg: "#FFFBF0",
+      badgeBorder: "#9E9E9E",
+      badgeText: "#5A4020",
+    };
+  }
+  if (rank === 3) {
+    return {
+      bg: "#FFF8E1",
+      border: "#D4A017",
+      shadow: "#A06808",
+      nameColor: "#1B3A8C",
+      starColor: "#D4A017",
+      badgeBg: "#D4A017",
+      badgeBorder: "#A06808",
+      badgeText: "#1B3A8C",
+    };
+  }
+  return {
+    bg: "#FFFBF0",
+    border: "#E8D8B0",
+    shadow: "rgba(0,0,0,0.08)",
+    nameColor: "#1B3A8C",
+    starColor: "#C8860A",
+    badgeBg: "#F0E8D0",
+    badgeBorder: "#C8B890",
+    badgeText: "#5A4020",
+  };
+}
+
+function getRankIcon(rank: number) {
+  if (rank === 1) return "🥇";
+  if (rank === 2) return "🥈";
+  if (rank === 3) return "🥉";
+  return rank.toString();
+}
 
 export default function LeaderboardPage() {
   const auth = useRequiredAuth();
@@ -26,104 +113,228 @@ export default function LeaderboardPage() {
 
   if (auth.isLoading || loading) {
     return (
-      <div className="min-h-screen bg-[#F2E1C0] flex items-center justify-center">
-        <div className="text-center font-bold text-slate-800 text-xl animate-pulse">
+      <div className="min-h-screen bg-[#17224f] flex items-center justify-center">
+        <div
+          className="text-center font-bold text-[#FFFBF0] text-xl animate-pulse"
+          style={{ fontFamily: "var(--font-fredoka), system-ui, sans-serif" }}
+        >
           Loading Leaderboard...
         </div>
       </div>
     );
   }
 
+  const selfLeader = leaders.find((l) => l.is_self);
+  const totalCount = leaders.length;
+  const selfRank = selfLeader?.rank ?? totalCount + 1;
+  const selfStars = selfLeader?.stars ?? 0;
+
   return (
-    <div className="w-full min-h-[100dvh] relative overflow-hidden select-none bg-[#F2E1C0] flex flex-col justify-between">
-      
-      {/* Header */}
-      <header className="w-full z-10 p-4 bg-amber-900 border-b-4 border-amber-950 flex items-center justify-between text-white">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🏆</span>
-          <h1 className="text-xl md:text-2xl font-black tracking-tight font-logo">Leaderboard</h1>
+    <PageShell
+      title="Leaderboard"
+      subtitle="Top star earners this week!"
+      emoji="🏆"
+      background="dark"
+      showBirds
+      headerButton={{
+        label: "← Home",
+        href: "/",
+        bg: "#D4A017",
+        color: "#1B3A8C",
+        shadow: "#A06808",
+      }}
+    >
+      {/* Your ranking card */}
+      <motion.div
+        className="rounded-[2rem] p-5 mb-6 flex items-center gap-5 shadow-2xl relative overflow-hidden"
+        style={{
+          background: "#D4A017",
+          border: "4px solid #A06808",
+          boxShadow: "#A06808 0px 6px 0px",
+        }}
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 200, damping: 15 }}
+      >
+        <div
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(45deg, #fff 0px, #fff 4px, transparent 4px, transparent 14px), repeating-linear-gradient(-45deg, #fff 0px, #fff 4px, transparent 4px, transparent 14px)",
+          }}
+        />
+        <div className="text-6xl z-10">🥉</div>
+        <div className="z-10">
+          <p className="text-base font-bold" style={{ color: "#5A3000" }}>
+            Your ranking
+          </p>
+          <p
+            className="text-4xl font-black"
+            style={{
+              color: "#1B3A8C",
+              fontFamily: "var(--font-fredoka), system-ui, sans-serif",
+            }}
+          >
+            #{selfRank} of {totalCount || 1}
+          </p>
+          <p
+            className="text-base font-semibold mt-0.5"
+            style={{ color: "#5A3000" }}
+          >
+            ⭐ {selfStars} stars — keep going!
+          </p>
         </div>
-        <div className="bg-amber-800 rounded-xl px-3 py-1 text-xs font-bold border border-amber-700">
-          Top Star Earners
+        <div className="ml-auto z-10 text-5xl">
+          <motion.span
+            animate={{ rotate: [0, 8, -8, 0], scale: [1, 1.1, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            🌟
+          </motion.span>
         </div>
-      </header>
+      </motion.div>
 
-      {/* Main Content */}
-      <main className="flex-1 w-full max-w-xl mx-auto px-4 py-8 relative z-10 overflow-y-auto">
-        <div className="bg-white/95 border-4 border-amber-500 rounded-3xl p-6 shadow-xl mb-6 text-center">
-          <h2 className="text-xl md:text-2xl font-black text-[#1B3A8C] font-logo">Weekly Champions! 🌟</h2>
-          <p className="text-slate-500 text-xs mt-1 font-semibold">Keep learning Yoruba to climb to the top of the chart!</p>
-        </div>
+      {/* Leaderboard list */}
+      <div className="flex-1 flex flex-col gap-3">
+        {leaders.map((leader, index) => {
+          const style = getRankStyle(leader.rank, leader.is_self);
+          const avatar = leader.is_self
+            ? "⭐"
+            : avatars[index % avatars.length];
 
-        {/* Leaderboard List */}
-        <div className="bg-white/95 border-4 border-amber-500 rounded-3xl overflow-hidden shadow-xl">
-          <div className="divide-y divide-slate-100">
-            {leaders.map((leader) => {
-              // Highlight user
-              const rowBg = leader.is_self ? "bg-amber-100 font-bold" : "";
-              const rankIcon = 
-                leader.rank === 1 ? "🥇" :
-                leader.rank === 2 ? "🥈" :
-                leader.rank === 3 ? "🥉" :
-                `#${leader.rank}`;
-
-              return (
+          return (
+            <motion.div
+              key={leader.username}
+              className="flex items-center gap-4 px-5 py-4 rounded-[1.5rem] relative overflow-hidden"
+              style={{
+                background: style.bg,
+                border: `3px solid ${style.border}`,
+                boxShadow: `${style.shadow} 0px 4px 0px`,
+              }}
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: index * 0.05 }}
+              whileHover={{ scale: 1.01 }}
+            >
+              {leader.is_self && (
                 <div
-                  key={leader.username}
-                  className={`p-4 flex items-center justify-between transition-colors ${rowBg}`}
-                >
-                  <div className="flex items-center gap-4">
-                    <span className="text-2xl font-black text-slate-800 w-8 text-center">{rankIcon}</span>
-                    <div className="flex flex-col">
-                      <span className="text-slate-800 font-black">
-                        {leader.first_name || leader.username} {leader.is_self && "(You)"}
-                      </span>
-                      <span className="text-slate-400 text-xs font-semibold">@{leader.username}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-full px-4 py-1.5 shadow-sm">
-                    <span className="text-base">⭐</span>
-                    <span className="text-amber-600 font-black text-base">{leader.stars}</span>
-                  </div>
-                </div>
-              );
-            })}
-
-            {leaders.length === 0 && (
-              <div className="p-8 text-center text-slate-400 font-semibold">
-                No star records found yet. Play a game to start!
+                  className="absolute top-0 left-0 right-0 h-1.5"
+                  style={{
+                    background:
+                      "repeating-linear-gradient(90deg, #D4A017 0px, #D4A017 10px, #B5451B 10px, #B5451B 20px)",
+                  }}
+                />
+              )}
+              <div
+                className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full text-lg font-black"
+                style={{
+                  background: style.badgeBg,
+                  border: `2px solid ${style.badgeBorder}`,
+                  color: style.badgeText,
+                  fontFamily: "var(--font-fredoka), system-ui, sans-serif",
+                }}
+              >
+                {getRankIcon(leader.rank)}
               </div>
-            )}
-          </div>
-        </div>
-      </main>
+              <div
+                className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full text-2xl"
+                style={{
+                  background: leader.is_self
+                    ? "rgba(255,255,255,0.15)"
+                    : "#F0E8D0",
+                }}
+              >
+                {avatar}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p
+                  className="text-lg font-bold truncate"
+                  style={{
+                    color: style.nameColor,
+                    fontFamily: "var(--font-fredoka), system-ui, sans-serif",
+                  }}
+                >
+                  {leader.first_name || leader.username}
+                  {leader.is_self && (
+                    <span
+                      className="ml-2 text-xs font-bold px-2 py-0.5 rounded-full"
+                      style={{ background: "#D4A017", color: "#1B3A8C" }}
+                    >
+                      YOU
+                    </span>
+                  )}
+                </p>
+              </div>
+              <div className="flex-shrink-0 flex items-center gap-1.5">
+                <span className="text-xl">⭐</span>
+                <span
+                  className="text-xl font-black"
+                  style={{
+                    color: style.starColor,
+                    fontFamily: "var(--font-fredoka), system-ui, sans-serif",
+                  }}
+                >
+                  {leader.stars}
+                </span>
+              </div>
+            </motion.div>
+          );
+        })}
 
-      {/* Bottom Nav */}
-      <footer className="w-full z-10 bg-amber-900 border-t-4 border-amber-950 p-4">
-        <div className="max-w-md mx-auto flex items-center justify-between text-white">
-          <Link href="/" className="flex flex-col items-center gap-1 hover:text-amber-300 transition-colors">
-            <span className="text-2xl">🎮</span>
-            <span className="text-xs">Play</span>
-          </Link>
-          <Link href="/leaderboard" className="flex flex-col items-center gap-1 text-amber-300 font-bold">
-            <span className="text-2xl">🏆</span>
-            <span className="text-xs">Ranks</span>
-          </Link>
-          <Link href="/videos" className="flex flex-col items-center gap-1 hover:text-amber-300 transition-colors">
-            <span className="text-2xl">📺</span>
-            <span className="text-xs">Videos</span>
-          </Link>
-          <Link href="/coach" className="flex flex-col items-center gap-1 hover:text-amber-300 transition-colors">
-            <span className="text-2xl">💬</span>
-            <span className="text-xs">Coach</span>
-          </Link>
-          <Link href="/progress" className="flex flex-col items-center gap-1 hover:text-amber-300 transition-colors">
-            <span className="text-2xl">👨‍👩‍👧</span>
-            <span className="text-xs">Portal</span>
-          </Link>
-        </div>
-      </footer>
-    </div>
+        {leaders.length === 0 && (
+          <PageCard className="text-center py-12">
+            <div className="text-6xl mb-4">🏆</div>
+            <p
+              className="text-2xl font-bold"
+              style={{
+                color: "#1B3A8C",
+                fontFamily: "var(--font-fredoka), system-ui, sans-serif",
+              }}
+            >
+              No star records yet!
+            </p>
+            <p className="text-base mt-2" style={{ color: "#5A4020" }}>
+              Play a game to start climbing the board.
+            </p>
+          </PageCard>
+        )}
+      </div>
+
+      {/* CTA card */}
+      <motion.div
+        className="mt-8 rounded-[2rem] p-6 text-center shadow-xl"
+        style={{
+          background: "rgba(255, 251, 240, 0.12)",
+          border: "2px solid rgba(212, 160, 23, 0.5)",
+        }}
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.3 }}
+      >
+        <p
+          className="text-2xl font-bold"
+          style={{
+            color: "#FFE082",
+            fontFamily: "var(--font-fredoka), system-ui, sans-serif",
+          }}
+        >
+          Play more games to climb the board! 🚀
+        </p>
+        <Link href="/">
+          <motion.button
+            className="mt-4 text-xl font-bold py-4 px-10 rounded-2xl text-white"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            style={{
+              background: "#2A7A3B",
+              fontFamily: "var(--font-fredoka), system-ui, sans-serif",
+              boxShadow: "#1A5C28 0px 5px 0px",
+            }}
+          >
+            🎮 Play Now
+          </motion.button>
+        </Link>
+      </motion.div>
+    </PageShell>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { motion } from "motion/react";
 import { useRequiredAuth } from "@/lib/api/auth/authContext";
 import YorubaService from "@/lib/api/services/Yoruba.Service";
@@ -99,28 +98,6 @@ export default function Home() {
         </span>
       </motion.div>
 
-      {/* Admin link (preserved functionality) */}
-      {auth.user.is_staff && (
-        <Link href="/admin/dashboard" aria-label="Admin dashboard">
-          <motion.div
-            className="absolute z-30 flex items-center justify-center w-12 h-12 rounded-full shadow-lg cursor-pointer"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            style={{
-              top: "1rem",
-              left: "1rem",
-              background: "#1B3A8C",
-              border: "3px solid #0D1E56",
-              boxShadow: "#0D1E56 0px 4px 0px",
-            }}
-          >
-            <span className="text-xl">⚙️</span>
-          </motion.div>
-        </Link>
-      )}
-
       {/* Category cards */}
       <CategoryCard
         href="/game/animals"
@@ -164,7 +141,10 @@ export default function Home() {
       />
 
       {/* Bottom navigation */}
-      <HomeNav />
+      <HomeNav
+        isAdmin={auth.user.is_staff ?? false}
+        onLogout={() => auth.logout()}
+      />
 
       {/* Mute button */}
       <motion.button
