@@ -24,6 +24,26 @@ __all__ = [
 ]
 
 
+VOICES = [
+    "Idera",
+    "Emma",
+    "Zainab",
+    "Osagie",
+    "Wura",
+    "Jude",
+    "Chinenye",  # i like Chinenye
+    "Tayo",
+    "Regina",  # i like Regina
+    "Femi",
+    "Adaora",
+    "Umar",
+    "Mary",
+    "Nonso",
+    "Remi",   # i like Remi
+    "Adam"
+];
+
+
 # =========================
 # Exceptions
 # =========================
@@ -141,6 +161,10 @@ class YarnGPTClient:
         """
 
         self._validate_text(text)
+        if voice and voice not in VOICES:
+            raise ValidationError(
+                f"Invalid voice '{voice}'. Supported voices: {', '.join(VOICES)}"
+            )
 
         voice = voice or self.DEFAULT_VOICE
         response_format = response_format or self.DEFAULT_RESPONSE_FORMAT

@@ -54,6 +54,7 @@ class UserProgress(models.Model):
 
 
 class AdminConfig(models.Model):
+    from src.lib.clients.yarngpt import VOICES
     PROVIDER_CHOICES = [
         ('groq', 'Groq'),
         ('openai', 'OpenAI'),
@@ -61,11 +62,15 @@ class AdminConfig(models.Model):
         ('anthropic', 'Anthropic Claude'),
     ]
 
+    YARN_GPT_VOICE_CHOICES = [(v, v) for v in VOICES]
+
     id = models.UUIDField(primary_key=True, default=uuid7, editable=False)
     fal_api_key = models.CharField(max_length=500, blank=True, default='')
     llm_provider = models.CharField(max_length=50, choices=PROVIDER_CHOICES, default='groq')
     llm_api_key = models.CharField(max_length=500, blank=True, default='')
     llm_model = models.CharField(max_length=100, default='llama-3.1-8b-instant')
+    yarn_gpt_api_key = models.CharField(max_length=500, blank=True, default='')
+    yarn_gpt_voice = models.CharField(max_length=50, choices=YARN_GPT_VOICE_CHOICES, default='Idera')
     date_updated = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
