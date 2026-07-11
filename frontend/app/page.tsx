@@ -13,6 +13,7 @@ import {
   ColorsIcon,
 } from "@/components/app/home/CategoryCard";
 import { HomeNav } from "@/components/app/home/HomeNav";
+import { SmartAvatar } from "@/components/ui/SmartAvatar";
 
 export default function Home() {
   const auth = useRequiredAuth();
@@ -56,7 +57,7 @@ export default function Home() {
         transition={{ type: "spring", stiffness: 200, damping: 15 }}
       >
         <div
-          className="px-7 py-2.5 rounded-full shadow-2xl text-center whitespace-nowrap"
+          className="flex gap-3 px-7 py-2.5 rounded-full shadow-2xl text-center whitespace-nowrap"
           style={{
             background: "rgba(255, 251, 240, 0.95)",
             border: "4px solid #D4A017",
@@ -66,7 +67,8 @@ export default function Home() {
             boxShadow: "#A06808 0px 6px 0px, rgba(0, 0, 0, 0.25) 0px 10px 30px",
           }}
         >
-          Vocab Adventure 🌍
+          <span>Vocab Adventure </span>
+          <SmartAvatar useSignedInUser={true} size={40} className="inline" />
         </div>
       </motion.div>
 
@@ -142,7 +144,7 @@ export default function Home() {
 
       {/* Bottom navigation */}
       <HomeNav
-        isAdmin={auth.user.is_staff ?? false}
+        isAdmin={auth.user.is_admin ?? auth.user.is_staff ?? false}
         onLogout={() => auth.logout()}
       />
 

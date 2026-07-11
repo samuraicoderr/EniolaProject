@@ -8,6 +8,13 @@ import YorubaService, {
   ChatMessageItem,
 } from "@/lib/api/services/Yoruba.Service";
 import { YorubaMascot } from "@/components/ui/YorubaMascot";
+import { PageShell, PageCard } from "@/components/app/PageShell";
+
+function getErrorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (typeof err === "string") return err;
+  return "Oops! Something went wrong when connecting to Eniola.";
+}
 
 export default function CoachPage() {
   const auth = useRequiredAuth();
@@ -20,6 +27,12 @@ export default function CoachPage() {
   >("idle");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const idCounterRef = useRef(0);
+
+  const nextMessageId = () => {
+    idCounterRef.current += 1;
+    return `coach-msg-${idCounterRef.current}`;
+  };
 
   // Fetch history and status
   useEffect(() => {
@@ -76,7 +89,7 @@ export default function CoachPage() {
 
     // Add user message locally
     const userMsg: ChatMessageItem = {
-      id: Math.random().toString(),
+      id: nextMessageId(),
       role: "user",
       text,
       timestamp: new Date().toISOString(),
@@ -94,17 +107,15 @@ export default function CoachPage() {
         setMascotState("happy");
         setTimeout(() => setMascotState("idle"), 1500);
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error sending chat message:", err);
       setSending(false);
       setMascotState("idle");
 
       const errorMsg: ChatMessageItem = {
-        id: Math.random().toString(),
+        id: nextMessageId(),
         role: "assistant",
-        text:
-          err.message ||
-          "Oops! Something went wrong when connecting to Eniola.",
+        text: getErrorMessage(err),
         timestamp: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, errorMsg]);
@@ -114,181 +125,219 @@ export default function CoachPage() {
   if (auth.isLoading || !auth.user) {
     return (
       <div className="min-h-screen bg-[#F2E1C0] flex items-center justify-center">
-        <div className="text-center font-bold text-slate-800 text-xl animate-pulse">
+        <div
+          className="text-center font-bold text-[#1B3A8C] text-xl animate-pulse"
+          style={{ fontFamily: "var(--font-fredoka), system-ui, sans-serif" }}
+        >
           Loading Yoruba Coach...
         </div>
       </div>
     );
   }
 
+  const isAdmin = auth.user.is_admin ?? auth.user.is_staff ?? false;
+
   return (
-    <div className="w-full min-h-[100dvh] relative overflow-hidden select-none bg-[#F2E1C0] flex flex-col justify-between">
-      {/* Header */}
-      <header className="w-full z-10 p-4 bg-amber-900 border-b-4 border-amber-950 flex items-center justify-between text-white flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">💬</span>
-          <h1 className="text-xl md:text-2xl font-black tracking-tight font-logo">
-            Yoruba Coach
-          </h1>
-        </div>
-        <div className="bg-green-700 text-white rounded-full px-3 py-1 text-xs font-bold border border-green-800 flex items-center gap-1.5 animate-pulse">
-          <span className="w-2 h-2 rounded-full bg-green-300" />
-          Eniola is Online
-        </div>
-      </header>
-
-      {/* Main Chat Area */}
-      <main className="flex-1 w-full max-w-2xl mx-auto px-4 py-4 flex flex-col min-h-0 relative z-10">
-        {/* Animated Yoruba Mascot panel at the top */}
-        <div className="flex flex-col items-center bg-white/95 border-4 border-amber-500 rounded-3xl p-4 shadow-xl mb-4 flex-shrink-0">
-          <YorubaMascot state={mascotState} size={110} />
-          <h2 className="text-lg font-black text-slate-800 mt-2 font-logo">
-            Coach Eniola
-          </h2>
-          <p className="text-slate-500 text-xs font-semibold">
-            &quot;Let&apos;s practice your Yoruba together! Ask me
-            anything.&quot;
-          </p>
-        </div>
-
-        {/* Message Log */}
-        <div className="flex-1 bg-white/95 border-4 border-amber-500 rounded-3xl p-4 shadow-xl overflow-y-auto min-h-0 flex flex-col mb-4">
-          <div className="flex-1 space-y-4">
-            {/* Greeting */}
-            <div className="flex justify-start">
-              <div className="bg-amber-100 text-slate-800 font-medium px-4 py-3 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm border border-amber-200">
-                Pẹlẹ o! (Hello!) I am Eniola, your Yoruba Coach. 🌟 Type a
-                message below, and let&apos;s practice together!
-              </div>
+    <PageShell
+      title="Yoruba Coach"
+      subtitle="Chat with Eniola, your Yoruba learning assistant"
+      emoji="💬"
+      activeTab="coach"
+      showBottomNav
+    >
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Mascot panel */}
+        <motion.div
+          className="lg:col-span-1"
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+        >
+          <PageCard
+            borderColor="#8B2E8B"
+            shadowColor="#5A1A5A"
+            padding="p-6"
+            className="text-center h-full"
+          >
+            <YorubaMascot state={mascotState} size={140} />
+            <h2
+              className="text-2xl font-black mt-4"
+              style={{
+                color: "#1B3A8C",
+                fontFamily: "var(--font-fredoka), system-ui, sans-serif",
+              }}
+            >
+              Coach Eniola
+            </h2>
+            <p className="text-[#5A4020] text-sm font-medium mt-1">
+              &quot;Let&apos;s practice your Yoruba together! Ask me
+              anything.&quot;
+            </p>
+            <div className="mt-4 inline-flex items-center gap-1.5 bg-green-100 text-green-700 border border-green-300 rounded-full px-3 py-1 text-xs font-black">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              Eniola is Online
             </div>
+          </PageCard>
+        </motion.div>
 
-            {messages.map((msg) => {
-              const isUser = msg.role === "user";
-              const bubbleClass = isUser
-                ? "bg-[#1B3A8C] text-white rounded-tr-none border-[#152e70]"
-                : "bg-amber-100 text-slate-800 rounded-tl-none border-amber-200";
-
-              return (
+        {/* Chat log */}
+        <motion.div
+          className="lg:col-span-2 flex flex-col"
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          <PageCard
+            borderColor="#8B2E8B"
+            shadowColor="#5A1A5A"
+            padding="p-0"
+            className="flex flex-col h-[60vh] lg:h-[65vh] relative"
+          >
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+              {/* Greeting */}
+              <div className="flex justify-start">
                 <div
-                  key={msg.id}
-                  className={`flex ${isUser ? "justify-end" : "justify-start"}`}
+                  className="font-semibold px-4 py-3 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm border"
+                  style={{
+                    background: "#F3E8F3",
+                    color: "#1B3A8C",
+                    borderColor: "#D8BFD8",
+                  }}
                 >
+                  Pẹlẹ o! (Hello!) I am Eniola, your Yoruba Coach. 🌟 Type a
+                  message below, and let&apos;s practice together!
+                </div>
+              </div>
+
+              {messages.map((msg) => {
+                const isUser = msg.role === "user";
+
+                return (
                   <div
-                    className={`px-4 py-3 rounded-2xl max-w-[85%] shadow-sm border ${bubbleClass} flex flex-col`}
+                    key={msg.id}
+                    className={`flex ${isUser ? "justify-end" : "justify-start"}`}
                   >
-                    <span className="font-semibold text-sm md:text-base leading-relaxed">
-                      {msg.text}
-                    </span>
-                    {msg.audio_url && (
-                      <button
-                        onClick={() => playVoice(msg.audio_url!)}
-                        className="mt-2 self-start bg-amber-600 hover:bg-amber-500 text-white font-bold py-1 px-3 rounded-lg border border-amber-700 text-xs flex items-center gap-1 cursor-pointer transition-colors"
-                      >
-                        🔊 Listen
-                      </button>
-                    )}
+                    <div
+                      className="px-4 py-3 rounded-2xl max-w-[85%] shadow-sm border flex flex-col"
+                      style={{
+                        background: isUser ? "#1B3A8C" : "#F3E8F3",
+                        color: isUser ? "#FFFBF0" : "#1B3A8C",
+                        borderColor: isUser ? "#0D1E56" : "#D8BFD8",
+                        borderRadius: isUser
+                          ? "1rem 1rem 0.25rem 1rem"
+                          : "1rem 1rem 1rem 0.25rem",
+                      }}
+                    >
+                      <span className="font-semibold text-sm md:text-base leading-relaxed">
+                        {msg.text}
+                      </span>
+                      {msg.audio_url && (
+                        <button
+                          onClick={() => playVoice(msg.audio_url!)}
+                          className="mt-2 self-start font-bold py-1 px-3 rounded-lg border text-xs flex items-center gap-1 cursor-pointer transition-colors"
+                          style={{
+                            background: "#D4A017",
+                            borderColor: "#A06808",
+                            color: "#FFFBF0",
+                          }}
+                        >
+                          🔊 Listen
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {sending && (
+                <div className="flex justify-start">
+                  <div
+                    className="font-bold px-4 py-3 rounded-2xl rounded-tl-none shadow-sm border animate-pulse"
+                    style={{
+                      background: "#F3E8F3",
+                      color: "#8B2E8B",
+                      borderColor: "#D8BFD8",
+                    }}
+                  >
+                    Eniola is typing... ✍️
                   </div>
                 </div>
-              );
-            })}
+              )}
 
-            {sending && (
-              <div className="flex justify-start">
-                <div className="bg-amber-100 text-slate-400 font-bold px-4 py-3 rounded-2xl rounded-tl-none shadow-sm border border-amber-200 animate-pulse">
-                  Eniola is typing... ✍️
-                </div>
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Disabled Overlay if keys are not set */}
+            {!active && (
+              <div className="absolute inset-0 bg-slate-900/90 rounded-[inherit] z-30 flex flex-col items-center justify-center p-6 text-center text-white">
+                <span className="text-6xl animate-bounce">😴</span>
+                <h3
+                  className="text-xl font-black mt-4"
+                  style={{
+                    fontFamily: "var(--font-fredoka), system-ui, sans-serif",
+                  }}
+                >
+                  Eniola is sleeping...
+                </h3>
+                <p className="text-slate-400 text-sm max-w-xs mt-2 font-medium">
+                  Please tell your parent/admin to enter the Fal.ai and LLM keys
+                  in the Admin Settings so I can wake up and chat!
+                </p>
+                {isAdmin && (
+                  <Link
+                    href="/admin/dashboard"
+                    className="mt-6 font-bold py-2.5 px-6 rounded-2xl border-2 shadow transition-all"
+                    style={{
+                      background: "#D4A017",
+                      borderColor: "#A06808",
+                      color: "#FFFBF0",
+                    }}
+                  >
+                    Go to Admin Settings
+                  </Link>
+                )}
               </div>
             )}
+          </PageCard>
 
-            <div ref={messagesEndRef} />
-          </div>
-        </div>
-
-        {/* Disabled Overlay if keys are not set */}
-        {!active && (
-          <div className="absolute inset-x-4 top-[170px] bottom-20 bg-slate-900/90 rounded-3xl z-30 flex flex-col items-center justify-center p-6 text-center text-white">
-            <span className="text-6xl animate-bounce">😴</span>
-            <h3 className="text-xl font-black mt-4 font-logo">
-              Eniola is sleeping...
-            </h3>
-            <p className="text-slate-400 text-sm max-w-xs mt-2 font-medium">
-              Please tell your parent/admin to enter the Fal.ai and LLM keys in
-              the Admin Settings so I can wake up and chat!
-            </p>
-            {auth.user.is_staff && (
-              <Link
-                href="/admin/dashboard"
-                className="mt-6 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 px-6 rounded-2xl border-2 border-amber-800 shadow transition-all"
-              >
-                Go to Admin Settings
-              </Link>
-            )}
-          </div>
-        )}
-
-        {/* Input Bar */}
-        <form
-          onSubmit={handleSend}
-          className="w-full flex items-center gap-2 flex-shrink-0"
-        >
-          <input
-            type="text"
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            placeholder="Type your message in English or Yoruba..."
-            disabled={sending || !active}
-            className="flex-1 bg-white/95 border-3 border-amber-500 rounded-2xl px-4 py-3 text-slate-800 font-bold placeholder-slate-400 outline-none shadow focus:border-amber-600 transition-colors"
-          />
-          <button
-            type="submit"
-            disabled={sending || !active || !inputText.trim()}
-            className="bg-[#1B3A8C] hover:bg-[#152e70] text-white font-bold p-3 rounded-2xl border-3 border-[#152e70] shadow flex-shrink-0 cursor-pointer disabled:opacity-50 transition-colors"
+          {/* Input Bar */}
+          <form
+            onSubmit={handleSend}
+            className="w-full flex items-center gap-3 mt-4"
           >
-            🚀
-          </button>
-        </form>
-      </main>
-
-      {/* Bottom Nav */}
-      <footer className="w-full z-10 bg-amber-900 border-t-4 border-amber-950 p-4 flex-shrink-0">
-        <div className="max-w-md mx-auto flex items-center justify-between text-white">
-          <Link
-            href="/"
-            className="flex flex-col items-center gap-1 hover:text-amber-300 transition-colors"
-          >
-            <span className="text-2xl">🎮</span>
-            <span className="text-xs">Play</span>
-          </Link>
-          <Link
-            href="/leaderboard"
-            className="flex flex-col items-center gap-1 hover:text-amber-300 transition-colors"
-          >
-            <span className="text-2xl">🏆</span>
-            <span className="text-xs">Ranks</span>
-          </Link>
-          <Link
-            href="/videos"
-            className="flex flex-col items-center gap-1 hover:text-amber-300 transition-colors"
-          >
-            <span className="text-2xl">📺</span>
-            <span className="text-xs">Videos</span>
-          </Link>
-          <Link
-            href="/coach"
-            className="flex flex-col items-center gap-1 text-amber-300 font-bold"
-          >
-            <span className="text-2xl">💬</span>
-            <span className="text-xs">Coach</span>
-          </Link>
-          <Link
-            href="/progress"
-            className="flex flex-col items-center gap-1 hover:text-amber-300 transition-colors"
-          >
-            <span className="text-2xl">👨‍👩‍👧</span>
-            <span className="text-xs">Portal</span>
-          </Link>
-        </div>
-      </footer>
-    </div>
+            <input
+              type="text"
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              placeholder="Type your message in English or Yoruba..."
+              disabled={sending || !active}
+              className="flex-1 rounded-2xl px-5 py-3.5 font-bold outline-none shadow transition-colors"
+              style={{
+                background: "#FFFBF0",
+                color: "#1B3A8C",
+                border: "4px solid #8B2E8B",
+                boxShadow: "#5A1A5A 0px 5px 0px",
+                fontFamily: "var(--font-fredoka), system-ui, sans-serif",
+              }}
+            />
+            <motion.button
+              type="submit"
+              disabled={sending || !active || !inputText.trim()}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="font-bold p-3.5 rounded-2xl border-4 shadow shrink-0 cursor-pointer disabled:opacity-50 transition-colors"
+              style={{
+                background: "#1B3A8C",
+                borderColor: "#0D1E56",
+                color: "#FFFBF0",
+                boxShadow: "#0D1E56 0px 5px 0px",
+              }}
+            >
+              🚀
+            </motion.button>
+          </form>
+        </motion.div>
+      </div>
+    </PageShell>
   );
 }

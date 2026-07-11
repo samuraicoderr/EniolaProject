@@ -14,7 +14,14 @@ interface PortalCardProps {
   shadow: string;
 }
 
-function PortalCard({ href, emoji, title, description, bg, shadow }: PortalCardProps) {
+function PortalCard({
+  href,
+  emoji,
+  title,
+  description,
+  bg,
+  shadow,
+}: PortalCardProps) {
   return (
     <Link href={href}>
       <motion.div
@@ -139,8 +146,13 @@ export default function PortalPage() {
       </div>
 
       {/* Admin card for staff */}
-      {auth.user.is_staff && (
-        <PageCard className="mb-8" borderColor="#4A4A4A" shadowColor="#2A2A2A" padding="p-6">
+      {(auth.user.is_admin ?? auth.user.is_staff) && (
+        <PageCard
+          className="mb-8"
+          borderColor="#4A4A4A"
+          shadowColor="#2A2A2A"
+          padding="p-6"
+        >
           <div className="flex items-center gap-4">
             <div
               className="w-16 h-16 rounded-full flex items-center justify-center text-3xl"
@@ -181,7 +193,11 @@ export default function PortalPage() {
       )}
 
       {/* Tip card */}
-      <PageCard className="text-center py-8" borderColor="#2A7A3B" shadowColor="#1A5C28">
+      <PageCard
+        className="text-center py-8"
+        borderColor="#2A7A3B"
+        shadowColor="#1A5C28"
+      >
         <div className="text-5xl mb-3">💡</div>
         <h3
           className="text-xl font-black mb-2"
@@ -193,8 +209,8 @@ export default function PortalPage() {
           Daily Learning Tip
         </h3>
         <p className="text-[#5A4020] max-w-lg mx-auto">
-          Consistency beats intensity! Even 10 minutes of practice a day builds strong Yoruba
-          vocabulary. Try reviewing one category before bedtime.
+          Consistency beats intensity! Even 10 minutes of practice a day builds
+          strong Yoruba vocabulary. Try reviewing one category before bedtime.
         </p>
       </PageCard>
     </PageShell>

@@ -63,6 +63,7 @@ export interface UserType {
   is_liveness_check_verified?: boolean;
   is_bvn_verified?: boolean;
   is_staff?: boolean;
+  is_admin?: boolean;
 }
 
 // ─────────────────────────────────────────────
@@ -141,7 +142,6 @@ export interface OAuthLoginResponse {
   // User info
   user?: UserType;
 }
-
 
 export interface OAuthProviderInfo {
   name: string;
@@ -252,26 +252,26 @@ export interface CheckUsernameResponse {
   message?: string;
 }
 
-
 /* -------------------- TYPE GUARDS -------------------- */
 
 export function isAuthTokens(
-  response: OAuthLoginResponse
-): response is OAuthLoginResponse & Required<Pick<OAuthLoginResponse, "access" | "refresh">> {
+  response: OAuthLoginResponse,
+): response is OAuthLoginResponse &
+  Required<Pick<OAuthLoginResponse, "access" | "refresh">> {
   return !!response.access && !!response.refresh;
 }
 
 export function isMFARequired(
-  response: OAuthLoginResponse
-): response is OAuthLoginResponse & Required<Pick<OAuthLoginResponse, "mfa_required" | "mfa_session_token">> {
+  response: OAuthLoginResponse,
+): response is OAuthLoginResponse &
+  Required<Pick<OAuthLoginResponse, "mfa_required" | "mfa_session_token">> {
   return !!response.mfa_required && !!response.mfa_session_token;
 }
 
 export function isOnboardingRequired(
-  response: OAuthLoginResponse
-): response is OAuthLoginResponse & Required<
-  Pick<OAuthLoginResponse, "onboarding_token" | "onboarding_status">
-> {
+  response: OAuthLoginResponse,
+): response is OAuthLoginResponse &
+  Required<Pick<OAuthLoginResponse, "onboarding_token" | "onboarding_status">> {
   return (
     response.onboarding_required === true &&
     typeof response.onboarding_token === "string" &&

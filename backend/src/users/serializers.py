@@ -63,6 +63,7 @@ class UserSerializer(serializers.ModelSerializer):
         required=False, allow_null=True, alias_target="src.users"
     )
     onboarding_flow = serializers.SerializerMethodField()
+    is_admin = serializers.BooleanField(source="is_staff", read_only=True)
 
     def get_onboarding_flow(self, obj) -> list:
         return obj.get_onboarding_flow()
@@ -85,6 +86,7 @@ class UserSerializer(serializers.ModelSerializer):
             "is_phone_number_verified",
             "mfa_is_enabled",
             "is_staff",
+            "is_admin",
         )
         read_only_fields = [*fields]
 
