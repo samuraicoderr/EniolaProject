@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect, useState, useMemo, useRef } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
-import { Fireworks } from "fireworks-js";
+import Confetti from "react-confetti";
 import { useRequiredAuth } from "@/lib/api/auth/authContext";
 import YorubaService, {
   VocabularyItem,
@@ -95,8 +95,7 @@ export default function GamePage() {
 
   const audio = useAudioPlayback();
   const sfx = useSoundEffects();
-  const fireworksContainerRef = useRef<HTMLDivElement>(null);
-  const fireworksRef = useRef<Fireworks | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   // Fetch vocabulary and start preloading pronunciation audio + sound effects.
   useEffect(() => {
@@ -116,7 +115,6 @@ export default function GamePage() {
           );
           sfx.preload([
             { id: "kidsCheer", url: appConfig.soundEffects.kidsCheer },
-            { id: "fireworks", url: appConfig.soundEffects.fireworks },
             {
               id: "disappointedCrowd",
               url: appConfig.soundEffects.disappointedCrowd,
@@ -133,11 +131,9 @@ export default function GamePage() {
 
   // Stop any pronunciation when moving to the next question or leaving the page.
   useEffect(() => {
-    const fireworks = fireworksRef.current;
     return () => {
       audio.stop();
       sfx.stopAll();
-      fireworks?.stop();
     };
   }, [currentIndex, audio, sfx]);
 
@@ -164,54 +160,14 @@ export default function GamePage() {
     return [correct, ...selectedDistractors].sort(() => 0.5 - rand());
   }, [currentQuestion, vocabulary, reshuffleKey]);
 
-  useEffect(() => {
-    if (!fireworksContainerRef.current) return;
-    const fw = new Fireworks(fireworksContainerRef.current, {
-      hue: { min: 0, max: 345 },
-      acceleration: 1.02,
-      brightness: { min: 50, max: 100 },
-      decay: { min: 0.015, max: 0.03 },
-      delay: { min: 30, max: 60 },
-      explosion: 6,
-      flickering: 93.26,
-      intensity: 60,
-      friction: 0.93,
-      gravity: 1.5,
-      opacity: 1.0,
-      particles: 145,
-      traceLength: 3.0,
-      traceSpeed: 10,
-      rocketsPoint: { min: 50, max: 50 },
-      lineWidth: {
-        explosion: { min: 1.0, max: 7.71 },
-        trace: { min: 0.1, max: 5.77 },
-      },
-      lineStyle: "round",
-      mouse: { click: false, move: false, max: 1 },
-      sound: { enabled: false, volume: { min: 1, max: 50 } },
-    });
-    fireworksRef.current = fw;
-    return () => {
-      fw.stop();
-      fireworksRef.current = null;
-    };
-  }, []);
-
   const startCelebration = () => {
     if (!muted) {
       sfx.play("kidsCheer", {
         fadeOut: { startAfter: 3000, duration: 1500 },
       });
-      sfx.play("fireworks", {
-        fadeOut: { startAfter: 3000, duration: 1500 },
-      });
     }
-
-    fireworksRef.current?.updateSize();
-    fireworksRef.current?.start();
-    setTimeout(() => {
-      fireworksRef.current?.stop();
-    }, 6000);
+    setShowConfetti(true);
+    setTimeout(() => setShowConfetti(false), 6000);
   };
 
   const handleOptionClick = (option: VocabularyItem) => {
@@ -249,7 +205,7 @@ export default function GamePage() {
     if (!isCorrect) return;
 
     sfx.stopAll();
-    fireworksRef.current?.stop();
+    setShowConfetti(false);
     setScore((prev) => prev + 1);
 
     if (currentIndex < 7) {
@@ -358,21 +314,21 @@ export default function GamePage() {
 
   return (
     <div className="min-h-[100dvh] w-full flex flex-col items-center p-4 md:p-8 relative overflow-hidden bg-[#F2E1C0]">
-      {/* Fireworks overlay */}
-      <div
-        ref={fireworksContainerRef}
-        className="fw-overlay fixed inset-0 pointer-events-none z-50"
-      />
-      <style>{`
-        .fw-overlay canvas {
-          display: block;
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-        }
-      `}</style>
+      {showConfetti && (
+        <Confetti
+          width={window.innerWidth}
+          height={window.innerHeight}
+          numberOfPieces={500}
+          recycle={false}
+          run={showConfetti}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 50,
+            pointerEvents: "none",
+          }}
+        />
+      )}
 
       {/* Background SVG Decoration */}
       <div className="absolute inset-0 pointer-events-none z-0 opacity-15">
