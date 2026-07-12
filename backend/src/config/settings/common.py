@@ -172,6 +172,33 @@ else:
 # APPLICATIONS
 # ============================================================
 
+APP_DEFAULT_CONTEXT = {
+    "name": SITE_NAME,
+    "frontend_link": FRONTEND_SERVER,
+    "backend_link": SITE_URL,
+    "privacy_policy_url": f"{FRONTEND_SERVER}privacy-policy/",
+    "terms_of_service_url": f"{FRONTEND_SERVER}terms-of-service/",
+    "unsubscribe_url": f"{FRONTEND_SERVER}unsubscribe/",
+    "support_center": f"{FRONTEND_SERVER}support/",
+    "support_email": "support@eniolaproject.com",
+    "tws_link": "",
+    "logo_url": None, #"https://res.cloudinary.com/autovery-cloud-name/image/upload/v1765664305/someimage.png",
+    "hero_image_url": None,
+}
+
+COMPANY_DEFAULT_CONTEXT = {
+    "name": "EniolaProject",
+    "address": "",
+}
+
+SOCIAL_DEFAULT_CONTEXT = {
+    "tiktok_link": None,
+    "linkedin_link": "",
+    "twitter_link": "",
+    "facebook_link": None,
+    "instagram_link": "",
+}
+
 MY_APPS = [
     "src.users",  # # User management, roles, authentication (OAuth2/SAML/MFA)
     "src.common",  # Shared utilities, custom exceptions, base models
