@@ -95,10 +95,10 @@ export default function GamePage() {
 
   const audio = useAudioPlayback();
   const sfx = useSoundEffects();
-  const fireworksContainerRef = useRef<HTMLDivElement>(null);
+  const fireworksCanvasRef = useRef<HTMLCanvasElement>(null);
   const fireworksRef = useRef<Fireworks | null>(null);
 
-  // Fetch vocabulary and preload all pronunciation audio.
+  // Fetch vocabulary and start preloading pronunciation audio + sound effects.
   useEffect(() => {
     if (auth.isAuthenticated) {
       YorubaService.getVocabulary(category)
@@ -114,6 +114,14 @@ export default function GamePage() {
               audio_url: item.audio_url,
             })),
           );
+          sfx.preload([
+            { id: "kidsCheer", url: appConfig.soundEffects.kidsCheer },
+            { id: "fireworks", url: appConfig.soundEffects.fireworks },
+            {
+              id: "disappointedCrowd",
+              url: appConfig.soundEffects.disappointedCrowd,
+            },
+          ]);
           setLoading(false);
         })
         .catch((err) => {
@@ -121,19 +129,7 @@ export default function GamePage() {
           setLoading(false);
         });
     }
-  }, [category, auth.isAuthenticated, audio]);
-
-  // Preload one-shot sound effects as soon as the game page mounts.
-  useEffect(() => {
-    sfx.preload([
-      { id: "kidsCheer", url: appConfig.soundEffects.kidsCheer },
-      { id: "fireworks", url: appConfig.soundEffects.fireworks },
-      {
-        id: "disappointedCrowd",
-        url: appConfig.soundEffects.disappointedCrowd,
-      },
-    ]);
-  }, [sfx]);
+  }, [category, auth.isAuthenticated, audio, sfx]);
 
   // Stop any pronunciation when moving to the next question or leaving the page.
   useEffect(() => {
@@ -169,9 +165,9 @@ export default function GamePage() {
 
   // Initialize fireworks instance once.
   useEffect(() => {
-    if (!fireworksContainerRef.current || fireworksRef.current) return;
+    if (!fireworksCanvasRef.current || fireworksRef.current) return;
 
-    fireworksRef.current = new Fireworks(fireworksContainerRef.current, {
+    fireworksRef.current = new Fireworks(fireworksCanvasRef.current, {
       hue: { min: 0, max: 345 },
       acceleration: 1.02,
       brightness: { min: 50, max: 100 },
@@ -363,9 +359,9 @@ export default function GamePage() {
   return (
     <div className="min-h-[100dvh] w-full flex flex-col items-center p-4 md:p-8 relative overflow-hidden bg-[#F2E1C0]">
       {/* Fireworks overlay */}
-      <div
-        ref={fireworksContainerRef}
-        className="absolute inset-0 pointer-events-none z-50"
+      <canvas
+        ref={fireworksCanvasRef}
+        className="absolute inset-0 w-full h-full pointer-events-none z-50"
       />
 
       {/* Background SVG Decoration */}
