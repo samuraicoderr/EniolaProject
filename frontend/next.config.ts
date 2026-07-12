@@ -1,13 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    optimizePackageImports: [],
-  },
-  compiler: {
-    styledComponents: true,
-  },
+  output: "export",
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
@@ -27,11 +23,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    optimizePackageImports: [],
+  },
+  compiler: {
+    styledComponents: true,
+  },
   typescript: {
     ignoreBuildErrors: true,
-  },
-  async redirects() {
-    return [];
   },
 };
 

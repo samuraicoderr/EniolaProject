@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# mobile
+/.mobile-outputs/
+
 # production
 /build
 
