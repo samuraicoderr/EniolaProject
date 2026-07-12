@@ -46,6 +46,15 @@ const appConfig = {
   backgrounds: <Record<string, string>>{
     ...bgs,
   },
+
+  soundEffects: {
+    kidsCheer:
+      "https://res.cloudinary.com/dkkcqmyjr/video/upload/v1783820040/kids_screeming_yaay_ldgmea.mp3",
+    fireworks:
+      "https://res.cloudinary.com/dkkcqmyjr/video/upload/v1783820039/fireworks_effect_h1vgvs.mp3",
+    disappointedCrowd:
+      "https://res.cloudinary.com/dkkcqmyjr/video/upload/v1783820732/disappointed_crowd_kyibxq.wav",
+  },
 } as const;
 
 export default appConfig;

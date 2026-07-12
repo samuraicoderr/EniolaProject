@@ -7,6 +7,7 @@ import { useRequiredAuth } from "@/lib/api/auth/authContext";
 import YorubaService, {
   ChatMessageItem,
 } from "@/lib/api/services/Yoruba.Service";
+import { useAudioPlayback } from "@/lib/utilities/useAudioPlayback";
 import { YorubaMascot } from "@/components/ui/YorubaMascot";
 import { PageShell, PageCard } from "@/components/app/PageShell";
 
@@ -26,8 +27,15 @@ export default function CoachPage() {
     "idle" | "speaking" | "happy" | "thinking"
   >("idle");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audio = useAudioPlayback();
   const idCounterRef = useRef(0);
+
+  // Stop any playing coach voice when leaving the page.
+  useEffect(() => {
+    return () => {
+      audio.stop();
+    };
+  }, [audio]);
 
   const nextMessageId = () => {
     idCounterRef.current += 1;
@@ -41,41 +49,42 @@ export default function CoachPage() {
         .then((data) => {
           setActive(data.active);
           setMessages(data.messages);
+          audio.preload(
+            data.messages.map((msg) => ({
+              id: msg.id,
+              text: msg.text,
+              audio_url: msg.audio_url,
+            })),
+          );
         })
         .catch((err) => {
           console.error("Error fetching coach data:", err);
         });
     }
-  }, [auth.isAuthenticated]);
+  }, [auth.isAuthenticated, audio]);
 
   // Scroll to bottom when message list changes
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const playVoice = (url: string) => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
-
+  const playVoice = (msg: ChatMessageItem) => {
     setMascotState("speaking");
-    const audio = new Audio(url);
-    audioRef.current = audio;
 
-    audio.onended = () => {
-      setMascotState("idle");
-    };
-
-    audio.onerror = () => {
-      setMascotState("idle");
-      console.error("Audio playback error");
-    };
-
-    audio.play().catch((e) => {
-      console.error("Play failed:", e);
-      setMascotState("idle");
-    });
+    audio.play(
+      {
+        id: msg.id,
+        text: msg.text,
+        audio_url: msg.audio_url,
+      },
+      {
+        onEnded: () => setMascotState("idle"),
+        onError: () => {
+          setMascotState("idle");
+          console.error("Audio playback error");
+        },
+      },
+    );
   };
 
   const handleSend = async (e: React.FormEvent) => {
@@ -102,7 +111,14 @@ export default function CoachPage() {
       setSending(false);
 
       if (response.audio_url) {
-        playVoice(response.audio_url);
+        audio.preload([
+          {
+            id: response.id,
+            text: response.text,
+            audio_url: response.audio_url,
+          },
+        ]);
+        playVoice(response);
       } else {
         setMascotState("happy");
         setTimeout(() => setMascotState("idle"), 1500);
@@ -233,7 +249,7 @@ export default function CoachPage() {
                       </span>
                       {msg.audio_url && (
                         <button
-                          onClick={() => playVoice(msg.audio_url!)}
+                          onClick={() => playVoice(msg)}
                           className="mt-2 self-start font-bold py-1 px-3 rounded-lg border text-xs flex items-center gap-1 cursor-pointer transition-colors"
                           style={{
                             background: "#D4A017",
