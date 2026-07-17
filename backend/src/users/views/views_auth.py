@@ -305,6 +305,7 @@ class AuthRouterViewSet(ViewSetHelperMixin, viewsets.GenericViewSet):
                 is_email_verified=False,
                 is_phone_number_verified=False,
             )
+            user.is_email_verified = True
             user.set_password(raw_password)
             user.save()
             # Advance from NEEDS_BASIC_INFORMATION → NEEDS_EMAIL_VERIFICATION
