@@ -40,13 +40,13 @@ function getNavItems(isAdmin: boolean, onLogout?: () => void): NavItem[] {
       bg: "#2A7A3B",
       shadow: "#1A5C28",
     },
-    {
-      href: "/coach",
-      label: "Coach",
-      emoji: "🤖",
-      bg: "#8B2E8B",
-      shadow: "#5A1A5A",
-    },
+    // {
+    //   href: "/coach",
+    //   label: "Coach",
+    //   emoji: "🤖",
+    //   bg: "#8B2E8B",
+    //   shadow: "#5A1A5A",
+    // },
     {
       href: "/portal",
       label: "Portal",
