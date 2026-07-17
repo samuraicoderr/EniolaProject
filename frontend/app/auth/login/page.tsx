@@ -156,12 +156,11 @@ function LoginPageContent() {
           />
         </form>
 
-        <AuthDivider text="or" />
+        {/* <AuthDivider text="or" />
         <OAuthButtons
           mode="login"
           onError={(message) => setFormMessage(message)}
-        />
-        {/*  
+        /> */}
         <motion.p
           variants={itemVariants}
           className="text-center text-sm font-medium text-[#5A4A2A]"
@@ -175,7 +174,6 @@ function LoginPageContent() {
             Create Account
           </Link>
         </motion.p>
-        */}
       </motion.div>
     </AuthCard>
   );
