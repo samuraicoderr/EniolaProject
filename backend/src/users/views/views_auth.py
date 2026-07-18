@@ -291,12 +291,12 @@ class AuthRouterViewSet(ViewSetHelperMixin, viewsets.GenericViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        pv = PasswordValidator(raw_password)
-        if not pv.run_check():
-            return Response(
-                {"password": pv.errors},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        # pv = PasswordValidator(raw_password)
+        # if not pv.run_check():
+        #     return Response(
+        #         {"password": pv.errors},
+        #         status=status.HTTP_400_BAD_REQUEST,
+        #     )
 
         with transaction.atomic():
             user = User(
